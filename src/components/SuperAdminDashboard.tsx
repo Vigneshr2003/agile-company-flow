@@ -49,10 +49,6 @@ const SuperAdminDashboard = ({ currentUser }: SuperAdminDashboardProps) => {
           <h1 className="text-3xl font-bold text-gray-900">Welcome back, {currentUser?.name}!</h1>
           <p className="text-gray-600 mt-2">Here's what's happening with your teams today.</p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Quick Actions
-        </Button>
       </div>
 
       {/* Stats Overview */}

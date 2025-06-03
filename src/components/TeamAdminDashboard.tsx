@@ -46,10 +46,6 @@ const TeamAdminDashboard = ({ currentUser }: TeamAdminDashboardProps) => {
           <h1 className="text-3xl font-bold text-gray-900">Software Team Dashboard</h1>
           <p className="text-gray-600 mt-2">Manage your team and track progress</p>
         </div>
-        <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Employee
-        </Button>
       </div>
 
       {/* Stats Overview */}

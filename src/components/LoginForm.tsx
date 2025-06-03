@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import logo from './asset/logo.png';
 
 interface LoginFormProps {
   onLogin: (credentials: { email: string; password: string }) => void;
@@ -34,9 +35,9 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur">
-        <CardHeader className="text-center space-y-4">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto">
-            <span className="text-white font-bold text-2xl">M</span>
+        <CardHeader className="text-center">
+          <div className="w-24 h-24 flex items-center justify-center mx-auto">
+            <img src={logo} alt="Maxmoc" />
           </div>
           <div>
             <CardTitle className="text-2xl font-bold text-gray-900">Welcome Back</CardTitle>
@@ -130,15 +131,6 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
               </CardContent>
             </Card>
           )}
-
-          {/* Default Credentials Info */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <div className="text-xs text-amber-800">
-              <strong>Super Admin Default:</strong><br />
-              Email: sathya@maxmoc.in<br />
-              Password: Maxmoc@2025
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
