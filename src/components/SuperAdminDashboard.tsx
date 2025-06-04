@@ -13,9 +13,10 @@ import EmployeeOverview from '@/components/EmployeeOverview';
 
 interface SuperAdminDashboardProps {
   currentUser: any;
+  userProfile: any;
 }
 
-const SuperAdminDashboard = ({ currentUser }: SuperAdminDashboardProps) => {
+const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   // Mock data
@@ -46,7 +47,7 @@ const SuperAdminDashboard = ({ currentUser }: SuperAdminDashboardProps) => {
       {/* Welcome Section */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {currentUser?.name}!</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {userProfile?.full_name || currentUser?.email}!</h1>
           <p className="text-gray-600 mt-2">Here's what's happening with your teams today.</p>
         </div>
       </div>

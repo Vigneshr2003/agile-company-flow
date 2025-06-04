@@ -12,9 +12,10 @@ import TeamStockView from '@/components/TeamStockView';
 
 interface TeamAdminDashboardProps {
   currentUser: any;
+  userProfile: any;
 }
 
-const TeamAdminDashboard = ({ currentUser }: TeamAdminDashboardProps) => {
+const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   // Mock data for team admin view
@@ -43,7 +44,7 @@ const TeamAdminDashboard = ({ currentUser }: TeamAdminDashboardProps) => {
       {/* Welcome Section */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Software Team Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{userProfile?.teams?.name || 'Team'} Dashboard</h1>
           <p className="text-gray-600 mt-2">Manage your team and track progress</p>
         </div>
       </div>
