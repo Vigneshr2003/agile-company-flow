@@ -21,7 +21,7 @@ const StockManagement = () => {
       requestedDate: '2024-01-12',
       status: 'pending',
       priority: 'medium',
-      estimatedCost: '$250'
+      estimatedCost: '₹250'
     },
     {
       id: 2,
@@ -32,7 +32,7 @@ const StockManagement = () => {
       requestedDate: '2024-01-10',
       status: 'approved',
       priority: 'high',
-      estimatedCost: '$800'
+      estimatedCost: '₹800'
     },
     {
       id: 3,
@@ -43,7 +43,7 @@ const StockManagement = () => {
       requestedDate: '2024-01-08',
       status: 'pending',
       priority: 'low',
-      estimatedCost: '$600'
+      estimatedCost: '₹600'
     },
     {
       id: 4,
@@ -54,7 +54,7 @@ const StockManagement = () => {
       requestedDate: '2024-01-11',
       status: 'approved',
       priority: 'high',
-      estimatedCost: '$450'
+      estimatedCost: '₹450'
     }
   ]);
 
@@ -157,7 +157,7 @@ const StockManagement = () => {
               <div>
                 <p className="text-blue-600 text-sm font-medium">Total Value</p>
                 <p className="text-2xl font-bold text-blue-900">
-                  ${stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('$', '')), 0)}
+                  ₹{stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('₹', '')), 0)}
                 </p>
               </div>
               <Package className="h-8 w-8 text-blue-600" />

@@ -20,7 +20,7 @@ const TeamStockView = () => {
       requestedDate: '2024-01-12',
       status: 'pending',
       priority: 'medium',
-      estimatedCost: '$250'
+      estimatedCost: '₹250'
     },
     {
       id: 2,
@@ -30,7 +30,7 @@ const TeamStockView = () => {
       requestedDate: '2024-01-08',
       status: 'approved',
       priority: 'high',
-      estimatedCost: '$900'
+      estimatedCost: '₹900'
     },
     {
       id: 3,
@@ -40,7 +40,7 @@ const TeamStockView = () => {
       requestedDate: '2024-01-10',
       status: 'pending',
       priority: 'low',
-      estimatedCost: '$320'
+      estimatedCost: '₹320'
     }
   ]);
 
@@ -157,7 +157,7 @@ const TeamStockView = () => {
                 <Label htmlFor="estimatedCost">Estimated Cost</Label>
                 <Input
                   id="estimatedCost"
-                  placeholder="e.g., $250"
+                  placeholder="e.g., ₹250"
                   value={newRequest.estimatedCost}
                   onChange={(e) => setNewRequest({ ...newRequest, estimatedCost: e.target.value })}
                 />
@@ -218,7 +218,7 @@ const TeamStockView = () => {
               <div>
                 <p className="text-blue-600 text-sm font-medium">Total Value</p>
                 <p className="text-2xl font-bold text-blue-900">
-                  ${stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('$', '')), 0)}
+                  ${stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('₹', '')), 0)}
                 </p>
               </div>
               <DollarSign className="h-8 w-8 text-blue-600" />
