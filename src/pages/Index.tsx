@@ -1,36 +1,122 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, CheckSquare, Package, Settings, Plus, Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import LoginForm from '@/components/LoginForm';
 import SuperAdminDashboard from '@/components/SuperAdminDashboard';
 import TeamAdminDashboard from '@/components/TeamAdminDashboard';
+import { authService } from '@/services/auth';
+import { profilesService } from '@/services/profiles';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<'super_admin' | 'team_admin'>('super_admin');
+  const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const { toast } = useToast();
 
-  const handleLogin = (credentials: any) => {
-    // Mock login logic - in real app this would call backend
-    if (credentials.email === 'sathya@maxmoc.in' && credentials.password === 'Maxmoc@2025') {
-      setUserRole('super_admin');
-      setCurrentUser({ name: 'Sathya', email: 'sathya@maxmoc.in', role: 'Super Admin' });
-    } else {
-      setUserRole('team_admin');
-      setCurrentUser({ name: 'Team Admin', email: credentials.email, role: 'Team Admin' });
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = authService.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session);
+        setIsLoggedIn(!!session);
+        setCurrentUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch user profile
+          setTimeout(async () => {
+            const { data: profile, error } = await profilesService.getCurrentProfile();
+            if (error) {
+              console.error('Error fetching profile:', error);
+              toast({
+                title: "Error",
+                description: "Failed to load user profile",
+                variant: "destructive"
+              });
+            } else {
+              setUserProfile(profile);
+            }
+            setLoading(false);
+          }, 0);
+        } else {
+          setUserProfile(null);
+          setLoading(false);
+        }
+      }
+    );
+
+    // Check for existing session
+    authService.getCurrentSession().then((session) => {
+      setIsLoggedIn(!!session);
+      setCurrentUser(session?.user ?? null);
+      if (!session) {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [toast]);
+
+  const handleLogin = async (credentials: { email: string; password: string }) => {
+    try {
+      const { data, error } = await authService.signIn(credentials.email, credentials.password);
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Logged in successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
     }
-    setIsLoggedIn(true);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setCurrentUser(null);
+  const handleLogout = async () => {
+    try {
+      const { error } = await authService.signOut();
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Logged out successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-sm">M</span>
+          </div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return <LoginForm onLogin={handleLogin} />;
@@ -50,12 +136,12 @@ const Index = () => {
             </div>
             <div className="flex items-center space-x-4">
               <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                {currentUser?.role}
+                {userProfile?.role?.replace('_', ' ') || 'Loading...'}
               </Badge>
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt={currentUser?.name} />
+                <AvatarImage src={userProfile?.profile_photo_url} alt={userProfile?.full_name} />
                 <AvatarFallback className="bg-blue-100 text-blue-700">
-                  {currentUser?.name?.charAt(0)}
+                  {userProfile?.full_name?.charAt(0) || currentUser?.email?.charAt(0) || '?'}
                 </AvatarFallback>
               </Avatar>
               <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -68,10 +154,10 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {userRole === 'super_admin' ? (
-          <SuperAdminDashboard currentUser={currentUser} />
+        {userProfile?.role === 'super_admin' ? (
+          <SuperAdminDashboard currentUser={currentUser} userProfile={userProfile} />
         ) : (
-          <TeamAdminDashboard currentUser={currentUser} />
+          <TeamAdminDashboard currentUser={currentUser} userProfile={userProfile} />
         )}
       </main>
     </div>

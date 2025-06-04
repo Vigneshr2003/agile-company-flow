@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import logo from './asset/logo.png';
 
 interface LoginFormProps {
@@ -15,11 +14,13 @@ interface LoginFormProps {
 const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin({ email, password });
+    setIsLoading(true);
+    await onLogin({ email, password });
+    setIsLoading(false);
   };
 
   const handleDemoLogin = (role: 'super' | 'team') => {
@@ -57,6 +58,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                 size="sm"
                 onClick={() => handleDemoLogin('super')}
                 className="flex-1 hover:bg-blue-50"
+                disabled={isLoading}
               >
                 Super Admin
               </Button>
@@ -65,17 +67,21 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                 size="sm"
                 onClick={() => handleDemoLogin('team')}
                 className="flex-1 hover:bg-green-50"
+                disabled={isLoading}
               >
                 Team Admin
               </Button>
             </div>
+            <p className="text-xs text-gray-500 text-center">
+              Note: You'll need to create these accounts first via sign up
+            </p>
           </div>
 
           <Separator />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email / Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -84,6 +90,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -97,40 +104,24 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-11"
                 required
+                disabled={isLoading}
               />
             </div>
 
             <Button 
               type="submit" 
               className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
 
           <div className="text-center">
-            <Button
-              variant="link"
-              onClick={() => setShowForgotPassword(!showForgotPassword)}
-              className="text-blue-600 hover:text-blue-700"
-            >
-              Forgot Password?
-            </Button>
+            <p className="text-sm text-gray-600">
+              Don't have an account? Contact your administrator to create one.
+            </p>
           </div>
-
-          {showForgotPassword && (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="pt-4">
-                <p className="text-sm text-blue-700">
-                  Enter your email address and we'll send you a reset link via OTP.
-                </p>
-                <div className="flex gap-2 mt-3">
-                  <Input placeholder="Enter email" className="flex-1" />
-                  <Button size="sm" variant="outline">Send OTP</Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </CardContent>
       </Card>
     </div>
