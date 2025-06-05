@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, CheckSquare, Package, Settings, Plus, Eye, Calendar, Activity } from 'lucide-react';
+import { Users, CheckSquare, Package, Settings, Plus, Eye, Calendar, Activity, FileText } from 'lucide-react';
 import TeamManagement from '@/components/TeamManagement';
 import TaskManagement from '@/components/TaskManagement';
 import StockManagement from '@/components/StockManagement';
 import EmployeeOverview from '@/components/EmployeeOverview';
+import MoMManagement from '@/components/MoMManagement';
 
 interface SuperAdminDashboardProps {
   currentUser: any;
@@ -24,14 +25,15 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
     totalTeams: 5,
     totalEmployees: 42,
     pendingTasks: 18,
-    stockRequests: 7
+    stockRequests: 7,
+    totalMoMs: 12
   };
 
   const recentActivity = [
     { id: 1, action: 'Task updated', team: 'Software Team', time: '2 min ago', type: 'task' },
     { id: 2, action: 'Stock request added', team: 'Hardware Team', time: '5 min ago', type: 'stock' },
     { id: 3, action: 'Employee added', team: 'Design Team', time: '10 min ago', type: 'employee' },
-    { id: 4, action: 'Task completed', team: 'Production Team', time: '15 min ago', type: 'task' },
+    { id: 4, action: 'MoM created', team: 'Production Team', time: '15 min ago', type: 'mom' },
   ];
 
   const teams = [
@@ -53,7 +55,7 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -101,11 +103,23 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
             </div>
           </CardContent>
         </Card>
+
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-indigo-100 hover:shadow-xl transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-indigo-600 text-sm font-medium">Meeting Records</p>
+                <p className="text-2xl font-bold text-indigo-900">{stats.totalMoMs}</p>
+              </div>
+              <FileText className="h-8 w-8 text-indigo-600" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm">
+        <TabsList className="grid w-full grid-cols-6 bg-white border shadow-sm">
           <TabsTrigger value="overview" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
             Overview
           </TabsTrigger>
@@ -120,6 +134,9 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
           </TabsTrigger>
           <TabsTrigger value="employees" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
             Employees
+          </TabsTrigger>
+          <TabsTrigger value="meetings" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+            Meetings
           </TabsTrigger>
         </TabsList>
 
@@ -161,7 +178,8 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
                   <div key={activity.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
                     <div className={`w-2 h-2 rounded-full ${
                       activity.type === 'task' ? 'bg-blue-500' : 
-                      activity.type === 'stock' ? 'bg-purple-500' : 'bg-green-500'
+                      activity.type === 'stock' ? 'bg-purple-500' : 
+                      activity.type === 'mom' ? 'bg-indigo-500' : 'bg-green-500'
                     }`} />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">{activity.action}</p>
@@ -188,6 +206,10 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
 
         <TabsContent value="employees">
           <EmployeeOverview />
+        </TabsContent>
+
+        <TabsContent value="meetings">
+          <MoMManagement />
         </TabsContent>
       </Tabs>
     </div>

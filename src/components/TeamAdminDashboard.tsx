@@ -6,6 +6,7 @@ import TeamTaskView from '@/components/TeamTaskView';
 import TeamStockView from '@/components/TeamStockView';
 import TeamStatsCards from '@/components/TeamStatsCards';
 import TeamOverviewContent from '@/components/TeamOverviewContent';
+import MoMManagement from '@/components/MoMManagement';
 
 interface TeamAdminDashboardProps {
   currentUser: any;
@@ -20,7 +21,8 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
     totalEmployees: 12,
     activeTasks: 8,
     completedTasks: 15,
-    pendingStockRequests: 3
+    pendingStockRequests: 3,
+    totalMoMs: 5
   };
 
   const myEmployees = [
@@ -51,7 +53,7 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border shadow-sm">
+        <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm">
           <TabsTrigger value="overview" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
             Overview
           </TabsTrigger>
@@ -63,6 +65,9 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
           </TabsTrigger>
           <TabsTrigger value="stock" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
             Stock
+          </TabsTrigger>
+          <TabsTrigger value="meetings" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
+            Meetings
           </TabsTrigger>
         </TabsList>
 
@@ -80,6 +85,10 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
 
         <TabsContent value="stock">
           <TeamStockView />
+        </TabsContent>
+
+        <TabsContent value="meetings">
+          <MoMManagement />
         </TabsContent>
       </Tabs>
     </div>
