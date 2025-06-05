@@ -27,6 +27,20 @@ export const authService = {
     return { error };
   },
 
+  async resetPassword(email: string) {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+    return { data, error };
+  },
+
+  async updatePassword(newPassword: string) {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    return { data, error };
+  },
+
   async getCurrentUser() {
     const { data: { user } } = await supabase.auth.getUser();
     return user;
@@ -39,5 +53,19 @@ export const authService = {
 
   onAuthStateChange(callback: (event: string, session: any) => void) {
     return supabase.auth.onAuthStateChange(callback);
+  },
+
+  // Admin function to create users (super admin only)
+  async createUser(email: string, password: string, userData: { full_name: string; role: string; team_id?: string }) {
+    // This would typically be done through an edge function for security
+    // For now, we'll use the sign up method
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: userData
+      }
+    });
+    return { data, error };
   }
 };

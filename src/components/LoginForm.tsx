@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import ForgotPassword from './ForgotPassword';
 import logo from './asset/logo.png';
 
 interface LoginFormProps {
@@ -15,6 +16,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +34,10 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
       setPassword('Software@123');
     }
   };
+
+  if (showForgotPassword) {
+    return <ForgotPassword onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -73,7 +79,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
               </Button>
             </div>
             <p className="text-xs text-gray-500 text-center">
-              Note: You'll need to create these accounts first via sign up
+              Click "Create Super Admin Account" below to create the test account
             </p>
           </div>
 
@@ -117,9 +123,17 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
             </Button>
           </form>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
+            <Button
+              variant="link"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Forgot your password?
+            </Button>
+            
             <p className="text-sm text-gray-600">
-              Don't have an account? Contact your administrator to create one.
+              Don't have an account? You need to create the super admin account first.
             </p>
           </div>
         </CardContent>
