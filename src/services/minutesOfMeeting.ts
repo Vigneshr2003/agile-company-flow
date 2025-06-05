@@ -28,7 +28,7 @@ export interface MinutesOfMeeting {
 }
 
 export const createMoM = async (mom: MinutesOfMeeting) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('minutes_of_meeting')
     .insert([mom])
     .select()
@@ -39,7 +39,7 @@ export const createMoM = async (mom: MinutesOfMeeting) => {
 };
 
 export const getMoMs = async () => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('minutes_of_meeting')
     .select(`
       *,
@@ -53,7 +53,7 @@ export const getMoMs = async () => {
 };
 
 export const getMoMById = async (id: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('minutes_of_meeting')
     .select(`
       *,
@@ -68,7 +68,7 @@ export const getMoMById = async (id: string) => {
 };
 
 export const updateMoM = async (id: string, updates: Partial<MinutesOfMeeting>) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('minutes_of_meeting')
     .update(updates)
     .eq('id', id)
@@ -80,7 +80,7 @@ export const updateMoM = async (id: string, updates: Partial<MinutesOfMeeting>) 
 };
 
 export const deleteMoM = async (id: string) => {
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('minutes_of_meeting')
     .delete()
     .eq('id', id);
