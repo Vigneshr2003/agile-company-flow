@@ -9,6 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      minutes_of_meeting: {
+        Row: {
+          action_items: Json | null
+          agenda: string | null
+          attendees: string[]
+          created_at: string
+          created_by: string | null
+          discussion_points: string | null
+          id: string
+          meeting_date: string
+          next_meeting_date: string | null
+          team_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_items?: Json | null
+          agenda?: string | null
+          attendees?: string[]
+          created_at?: string
+          created_by?: string | null
+          discussion_points?: string | null
+          id?: string
+          meeting_date: string
+          next_meeting_date?: string | null
+          team_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_items?: Json | null
+          agenda?: string | null
+          attendees?: string[]
+          created_at?: string
+          created_by?: string | null
+          discussion_points?: string | null
+          id?: string
+          meeting_date?: string
+          next_meeting_date?: string | null
+          team_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "minutes_of_meeting_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "minutes_of_meeting_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
