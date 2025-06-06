@@ -1,71 +1,91 @@
 
-import { supabase } from '@/integrations/supabase/client';
+// Frontend-only auth service with hardcoded credentials
+export interface User {
+  id: string;
+  email: string;
+  role: 'super_admin' | 'team_admin';
+  full_name: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  user?: User;
+  error?: string;
+}
+
+// Hardcoded user credentials
+const users: Record<string, { password: string; user: User }> = {
+  'sathya@gmail.com': {
+    password: 'Maxmoc@2025',
+    user: {
+      id: '1',
+      email: 'sathya@gmail.com',
+      role: 'super_admin',
+      full_name: 'Super Admin'
+    }
+  },
+  'admin@software.maxmoc.in': {
+    password: 'Software@123',
+    user: {
+      id: '2',
+      email: 'admin@software.maxmoc.in',
+      role: 'team_admin',
+      full_name: 'Team Admin'
+    }
+  }
+};
 
 export const authService = {
-  async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
+  async signIn(email: string, password: string): Promise<AuthResponse> {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const userRecord = users[email];
+    
+    if (!userRecord || userRecord.password !== password) {
+      return {
+        success: false,
+        error: 'Invalid email or password'
+      };
+    }
+    
+    // Store user in localStorage for persistence
+    localStorage.setItem('currentUser', JSON.stringify(userRecord.user));
+    
+    return {
+      success: true,
+      user: userRecord.user
+    };
   },
 
-  async signUp(email: string, password: string, userData?: { full_name?: string; role?: string }) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData,
-        emailRedirectTo: `${window.location.origin}/`
-      }
-    });
-    return { data, error };
+  async signOut(): Promise<void> {
+    localStorage.removeItem('currentUser');
   },
 
-  async signOut() {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+  getCurrentUser(): User | null {
+    const userStr = localStorage.getItem('currentUser');
+    if (!userStr) return null;
+    
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
   },
 
-  async resetPassword(email: string) {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
-    });
-    return { data, error };
-  },
-
-  async updatePassword(newPassword: string) {
-    const { data, error } = await supabase.auth.updateUser({
-      password: newPassword
-    });
-    return { data, error };
-  },
-
-  async getCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
-  },
-
-  async getCurrentSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
-  },
-
-  onAuthStateChange(callback: (event: string, session: any) => void) {
-    return supabase.auth.onAuthStateChange(callback);
-  },
-
-  // Admin function to create users (super admin only)
-  async createUser(email: string, password: string, userData: { full_name: string; role: string; team_id?: string }) {
-    // This would typically be done through an edge function for security
-    // For now, we'll use the sign up method
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData
-      }
-    });
-    return { data, error };
+  async resetPassword(email: string): Promise<AuthResponse> {
+    // Simulate password reset
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (users[email]) {
+      return {
+        success: true
+      };
+    }
+    
+    return {
+      success: false,
+      error: 'Email not found'
+    };
   }
 };

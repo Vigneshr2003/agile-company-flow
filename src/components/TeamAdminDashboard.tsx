@@ -43,8 +43,9 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
       {/* Welcome Section */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{userProfile?.teams?.name || 'Team'} Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Team Admin Dashboard</h1>
           <p className="text-gray-600 mt-2">Manage your team and track progress</p>
+          <p className="text-sm text-green-600 mt-1">Frontend Demo - No Backend Integration</p>
         </div>
       </div>
 

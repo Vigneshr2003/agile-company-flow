@@ -23,6 +23,7 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
           <p className="text-gray-600 mt-2">Complete system overview and management</p>
+          <p className="text-sm text-blue-600 mt-1">Frontend Demo - No Backend Integration</p>
         </div>
       </div>
 
