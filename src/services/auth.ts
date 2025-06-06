@@ -67,34 +67,5 @@ export const authService = {
       }
     });
     return { data, error };
-  },
-
-  // Create super admin function
-  async createSuperAdmin() {
-    console.log('Creating super admin account...');
-    const { data, error } = await supabase.auth.signUp({
-      email: 'sathya@gmail.com',
-      password: 'Maxmoc@2025',
-      options: {
-        data: {
-          full_name: 'Super Admin',
-          role: 'super_admin'
-        }
-      }
-    });
-
-    if (error) {
-      console.error('Error creating super admin:', error);
-      return { data: null, error };
-    }
-
-    // If user already exists but not confirmed, try to sign in
-    if (error && error.message.includes('User already registered')) {
-      console.log('User already exists, trying to sign in...');
-      return await this.signIn('sathya@gmail.com', 'Maxmoc@2025');
-    }
-
-    console.log('Super admin created successfully:', data);
-    return { data, error: null };
   }
 };

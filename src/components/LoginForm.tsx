@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { authService } from '@/services/auth';
 import { useToast } from '@/hooks/use-toast';
 import ForgotPassword from './ForgotPassword';
 import logo from './asset/logo.png';
@@ -35,39 +34,6 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
     } else {
       setEmail('admin@software.maxmoc.in');
       setPassword('Software@123');
-    }
-  };
-
-  const handleCreateSuperAdmin = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await authService.createSuperAdmin();
-      if (error) {
-        toast({
-          title: "Info",
-          description: error.message.includes('already registered') 
-            ? "Super admin account already exists. You can now log in." 
-            : error.message,
-          variant: error.message.includes('already registered') ? "default" : "destructive"
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Super admin account created successfully! You can now log in.",
-        });
-        // Auto-fill the login form
-        setEmail('sathya@gmail.com');
-        setPassword('Maxmoc@2025');
-      }
-    } catch (error) {
-      console.error('Error creating super admin:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create super admin account",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -114,18 +80,6 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                 Team Admin
               </Button>
             </div>
-            <Button
-              onClick={handleCreateSuperAdmin}
-              variant="default"
-              size="sm"
-              className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-              disabled={isLoading}
-            >
-              Create Super Admin Account
-            </Button>
-            <p className="text-xs text-gray-500 text-center">
-              Click "Create Super Admin Account" to set up the test account first
-            </p>
           </div>
 
           <Separator />
