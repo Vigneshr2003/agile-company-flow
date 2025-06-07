@@ -27,7 +27,7 @@ const ForgotPassword = ({ onBackToLogin }: ForgotPasswordProps) => {
       if (error) {
         toast({
           title: "Error",
-          description: error.message,
+          description: error,
           variant: "destructive"
         });
       } else {
