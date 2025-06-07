@@ -1,271 +1,246 @@
-
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Plus, Eye, Edit, Settings, Mail, Key } from 'lucide-react';
+import { Plus, Users, Briefcase, Mail, Phone, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const TeamManagement = () => {
-  const [teams, setTeams] = useState([
-    { 
-      id: 1, 
-      name: 'Software Team', 
-      admin: { name: 'John Doe', email: 'john@software.maxmoc.in' },
-      employees: 12, 
-      activeTasks: 8, 
-      status: 'active',
-      created: '2024-01-01'
+interface TeamManagementProps {
+  selectedTeam: string;
+}
+
+const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
+  const [teams] = useState([
+    {
+      id: 'software',
+      name: 'Software Team',
+      description: 'Frontend and backend development',
+      memberCount: 5,
+      lead: 'Alice Johnson'
     },
-    { 
-      id: 2, 
-      name: 'Production Team', 
-      admin: { name: 'Jane Smith', email: 'jane@production.maxmoc.in' },
-      employees: 15, 
-      activeTasks: 5, 
-      status: 'active',
-      created: '2024-01-02'
+    {
+      id: 'production',
+      name: 'Production Team',
+      description: 'Manufacturing and quality control',
+      memberCount: 8,
+      lead: 'David Wilson'
     },
-    { 
-      id: 3, 
-      name: 'Hardware & Assembly', 
-      admin: { name: 'Mike Johnson', email: 'mike@hardware.maxmoc.in' },
-      employees: 8, 
-      activeTasks: 3, 
-      status: 'active',
-      created: '2024-01-03'
+    {
+      id: 'hardware',
+      name: 'Hardware & Assembly',
+      description: 'Hardware design and assembly',
+      memberCount: 4,
+      lead: 'Eva Brown'
     },
-    { 
-      id: 4, 
-      name: 'Design Team', 
-      admin: { name: 'Sarah Wilson', email: 'sarah@design.maxmoc.in' },
-      employees: 6, 
-      activeTasks: 2, 
-      status: 'active',
-      created: '2024-01-04'
-    },
-    { 
-      id: 5, 
-      name: 'Accounting Team', 
-      admin: { name: 'David Brown', email: 'david@accounting.maxmoc.in' },
-      employees: 3, 
-      activeTasks: 1, 
-      status: 'active',
-      created: '2024-01-05'
-    },
+    {
+      id: 'design',
+      name: 'Design Team',
+      description: 'UI/UX and graphic design',
+      memberCount: 3,
+      lead: 'Grace Lee'
+    }
   ]);
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<any>(null);
-  const [newTeam, setNewTeam] = useState({
-    name: '',
-    adminName: '',
-    adminEmail: '',
-    password: ''
-  });
-
-  const generatePassword = () => {
-    const password = `${newTeam.name.replace(/\s+/g, '')}@123`;
-    setNewTeam({ ...newTeam, password });
-  };
-
-  const handleCreateTeam = () => {
-    const team = {
-      id: teams.length + 1,
-      name: newTeam.name,
-      admin: { name: newTeam.adminName, email: newTeam.adminEmail },
-      employees: 0,
-      activeTasks: 0,
+  const [employees] = useState([
+    {
+      id: 1,
+      name: 'Alice Johnson',
+      email: 'alice@maxmoc.in',
+      role: 'Frontend Developer',
+      team: 'Software Team',
       status: 'active',
-      created: new Date().toISOString().split('T')[0]
-    };
-    setTeams([...teams, team]);
-    setNewTeam({ name: '', adminName: '', adminEmail: '', password: '' });
-    setIsCreateModalOpen(false);
-  };
+      joinDate: '2023-06-15',
+      phone: '+1 (555) 123-4567',
+      avatar: '/placeholder.svg'
+    },
+    {
+      id: 2,
+      name: 'Bob Smith',
+      email: 'bob@maxmoc.in',
+      role: 'Backend Developer',
+      team: 'Software Team',
+      status: 'active',
+      joinDate: '2023-07-01',
+      phone: '+1 (555) 234-5678',
+      avatar: '/placeholder.svg'
+    },
+    {
+      id: 3,
+      name: 'Carol Davis',
+      email: 'carol@maxmoc.in',
+      role: 'Full Stack Developer',
+      team: 'Software Team',
+      status: 'active',
+      joinDate: '2023-08-15',
+      phone: '+1 (555) 345-6789',
+      avatar: '/placeholder.svg'
+    },
+    {
+      id: 4,
+      name: 'David Wilson',
+      email: 'david@maxmoc.in',
+      role: 'Production Manager',
+      team: 'Production Team',
+      status: 'active',
+      joinDate: '2023-05-01',
+      phone: '+1 (555) 456-7890',
+      avatar: '/placeholder.svg'
+    },
+    {
+      id: 5,
+      name: 'Eva Brown',
+      email: 'eva@maxmoc.in',
+      role: 'Assembly Specialist',
+      team: 'Hardware & Assembly',
+      status: 'active',
+      joinDate: '2023-09-01',
+      phone: '+1 (555) 567-8901',
+      avatar: '/placeholder.svg'
+    },
+    {
+      id: 6,
+      name: 'Grace Lee',
+      email: 'grace@maxmoc.in',
+      role: 'UI/UX Designer',
+      team: 'Design Team',
+      status: 'active',
+      joinDate: '2023-10-15',
+      phone: '+1 (555) 678-9012',
+      avatar: '/placeholder.svg'
+    }
+  ]);
 
-  const teamEmployees = [
-    { id: 1, name: 'Alice Johnson', role: 'Frontend Developer', avatar: '/placeholder.svg', email: 'alice@example.com' },
-    { id: 2, name: 'Bob Smith', role: 'Backend Developer', avatar: '/placeholder.svg', email: 'bob@example.com' },
-    { id: 3, name: 'Carol Davis', role: 'UI/UX Designer', avatar: '/placeholder.svg', email: 'carol@example.com' },
-    { id: 4, name: 'David Wilson', role: 'QA Engineer', avatar: '/placeholder.svg', email: 'david@example.com' },
-  ];
+  // Filter teams and employees based on selectedTeam
+  const filteredTeams = selectedTeam === 'all' ? teams : teams.filter(team => team.name === selectedTeam);
+  const filteredEmployees = selectedTeam === 'all' ? employees : employees.filter(emp => emp.team === selectedTeam);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-red-100 text-red-800';
+      case 'on_leave': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
-          <p className="text-gray-600">Create and manage teams with their admin credentials</p>
+          <p className="text-gray-600">
+            {selectedTeam === 'all' ? 'All Teams' : selectedTeam} - Manage teams and team members
+          </p>
         </div>
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Team
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Create New Team</DialogTitle>
-              <DialogDescription>
-                Create a new team and assign an admin with login credentials
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="teamName">Team Name</Label>
-                <Input
-                  id="teamName"
-                  placeholder="e.g., Marketing Team"
-                  value={newTeam.name}
-                  onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="adminName">Admin Name</Label>
-                <Input
-                  id="adminName"
-                  placeholder="e.g., John Doe"
-                  value={newTeam.adminName}
-                  onChange={(e) => setNewTeam({ ...newTeam, adminName: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="adminEmail">Admin Email</Label>
-                <Input
-                  id="adminEmail"
-                  type="email"
-                  placeholder="e.g., john@marketing.maxmoc.in"
-                  value={newTeam.adminEmail}
-                  onChange={(e) => setNewTeam({ ...newTeam, adminEmail: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="password"
-                    type="text"
-                    placeholder="Auto-generated or enter custom"
-                    value={newTeam.password}
-                    onChange={(e) => setNewTeam({ ...newTeam, password: e.target.value })}
-                  />
-                  <Button variant="outline" onClick={generatePassword}>
-                    <Key className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateTeam}>Create Team</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto">
+            <Users className="h-4 w-4 mr-2" />
+            Add Team
+          </Button>
+          <Button className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Employee
+          </Button>
+        </div>
       </div>
 
-      {/* Teams Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {teams.map((team) => (
-          <Card key={team.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200 group">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold text-gray-900">{team.name}</CardTitle>
-                  <CardDescription className="text-sm text-gray-600 mt-1">
-                    Created {new Date(team.created).toLocaleDateString()}
-                  </CardDescription>
+      {/* Teams Overview */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Teams Overview</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredTeams.map((team) => (
+            <Card key={team.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">{team.name}</CardTitle>
+                <p className="text-sm text-gray-600">{team.description}</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Members:</span>
+                    <span className="font-medium">{team.memberCount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Team Lead:</span>
+                    <span className="font-medium">{team.lead}</span>
+                  </div>
                 </div>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  {team.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Admin Info */}
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-blue-100 text-blue-700">
-                    {team.admin.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 text-sm">{team.admin.name}</p>
-                  <p className="text-xs text-gray-600 flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    {team.admin.email}
-                  </p>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-lg font-bold text-gray-900">{team.employees}</p>
-                  <p className="text-xs text-gray-600">Employees</p>
-                </div>
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-lg font-bold text-gray-900">{team.activeTasks}</p>
-                  <p className="text-xs text-gray-600">Active Tasks</p>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2 pt-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1 hover:bg-blue-50"
-                      onClick={() => setSelectedTeam(team)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      View Team
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[600px]">
-                    <DialogHeader>
-                      <DialogTitle>{selectedTeam?.name} - Employees</DialogTitle>
-                      <DialogDescription>
-                        View all employees under this team
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      {teamEmployees.map((employee) => (
-                        <div key={employee.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={employee.avatar} alt={employee.name} />
-                            <AvatarFallback className="bg-blue-100 text-blue-700">
-                              {employee.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{employee.name}</h4>
-                            <p className="text-sm text-gray-600">{employee.role}</p>
-                            <p className="text-xs text-gray-500">{employee.email}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                <Button variant="outline" size="sm" className="hover:bg-gray-50">
-                  <Settings className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="w-full mt-3">
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Manage Team
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
+
+      {/* Employee List */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Team Members</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filteredEmployees.map((employee) => (
+            <Card key={employee.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3 flex-1">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={employee.avatar} alt={employee.name} />
+                      <AvatarFallback>
+                        {employee.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900">{employee.name}</h4>
+                      <p className="text-sm text-gray-600">{employee.role}</p>
+                      <p className="text-sm text-gray-500">{employee.team}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          <span>{employee.email}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          <span>{employee.phone}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={getStatusColor(employee.status)}>
+                      {employee.status}
+                    </Badge>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Edit Employee</DropdownMenuItem>
+                        <DropdownMenuItem>View Profile</DropdownMenuItem>
+                        <DropdownMenuItem>Change Team</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          Remove Employee
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {filteredEmployees.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-gray-500">No employees found for the selected team.</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

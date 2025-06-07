@@ -1,282 +1,223 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, FileText, Calendar, Users, Eye, Edit, Trash } from 'lucide-react';
-import { MinutesOfMeeting, getMoMs, createMoM, updateMoM, deleteMoM } from '@/services/minutesOfMeeting';
+import { Plus, Calendar, Users, FileText, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import MoMForm from '@/components/MoMForm';
-import { supabase } from '@/integrations/supabase/client';
 
-const MoMManagement = () => {
-  const [moms, setMoms] = useState<any[]>([]);
-  const [filteredMoms, setFilteredMoms] = useState<any[]>([]);
-  const [teams, setTeams] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingMom, setEditingMom] = useState<MinutesOfMeeting | undefined>();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterTeam, setFilterTeam] = useState('all');
-  const [filterType, setFilterType] = useState('all');
+interface MoMManagementProps {
+  selectedTeam: string;
+  isAdmin: boolean;
+}
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    filterMoms();
-  }, [moms, searchTerm, filterTeam, filterType]);
-
-  const loadData = async () => {
-    try {
-      const [momsData, teamsData, employeesData] = await Promise.all([
-        getMoMs(),
-        supabase.from('teams').select('*'),
-        supabase.from('profiles').select('*')
-      ]);
-
-      setMoms(momsData || []);
-      setTeams(teamsData.data || []);
-      setEmployees(employeesData.data || []);
-    } catch (error) {
-      console.error('Error loading data:', error);
+const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
+  const [meetings] = useState([
+    {
+      id: 1,
+      title: 'Sprint Planning Q1 2024',
+      date: '2024-01-15',
+      time: '10:00 AM',
+      team: 'Software Team',
+      attendees: ['Alice Johnson', 'Bob Smith', 'Carol Davis'],
+      status: 'completed',
+      agenda: ['Sprint goals review', 'Task assignments', 'Timeline discussion'],
+      minutes: 'Discussed Q1 goals and assigned tasks. Sprint duration: 2 weeks. Next meeting: Jan 29.'
+    },
+    {
+      id: 2,
+      title: 'Production Review Meeting',
+      date: '2024-01-18',
+      time: '2:00 PM',
+      team: 'Production Team',
+      attendees: ['David Wilson', 'Eva Brown', 'Frank Miller'],
+      status: 'scheduled',
+      agenda: ['Production metrics', 'Quality control', 'Equipment maintenance'],
+      minutes: ''
+    },
+    {
+      id: 3,
+      title: 'Design System Review',
+      date: '2024-01-12',
+      time: '11:00 AM',
+      team: 'Design Team',
+      attendees: ['Grace Lee', 'Henry Chen'],
+      status: 'completed',
+      agenda: ['Component library updates', 'Brand guidelines', 'Accessibility improvements'],
+      minutes: 'Updated component library with new button variants. Discussed accessibility compliance for all components.'
+    },
+    {
+      id: 4,
+      title: 'Hardware Testing Protocol',
+      date: '2024-01-20',
+      time: '3:00 PM',
+      team: 'Hardware & Assembly',
+      attendees: ['Ian Parker', 'Julia Roberts'],
+      status: 'scheduled',
+      agenda: ['Testing procedures', 'Quality assurance', 'Documentation updates'],
+      minutes: ''
     }
-  };
+  ]);
 
-  const filterMoms = () => {
-    let filtered = moms;
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
+  const [showMoMForm, setShowMoMForm] = useState(false);
 
-    if (searchTerm) {
-      filtered = filtered.filter(mom => 
-        mom.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        mom.agenda?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  // Filter meetings based on selected team
+  const filteredMeetings = meetings.filter(meeting => 
+    selectedTeam === 'all' || meeting.team === selectedTeam
+  );
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'scheduled': return 'bg-blue-100 text-blue-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
-
-    if (filterTeam !== 'all') {
-      filtered = filtered.filter(mom => mom.team_id === filterTeam);
-    }
-
-    if (filterType !== 'all') {
-      filtered = filtered.filter(mom => mom.meeting_type === filterType);
-    }
-
-    setFilteredMoms(filtered);
-  };
-
-  const handleCreateMom = async (momData: MinutesOfMeeting) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      await createMoM({ ...momData, created_by: user.id });
-      loadData();
-    } catch (error) {
-      console.error('Error creating MoM:', error);
-    }
-  };
-
-  const handleUpdateMom = async (momData: MinutesOfMeeting) => {
-    try {
-      if (editingMom?.id) {
-        await updateMoM(editingMom.id, momData);
-        loadData();
-        setEditingMom(undefined);
-      }
-    } catch (error) {
-      console.error('Error updating MoM:', error);
-    }
-  };
-
-  const handleDeleteMom = async (id: string) => {
-    if (confirm('Are you sure you want to delete this Minutes of Meeting?')) {
-      try {
-        await deleteMoM(id);
-        loadData();
-      } catch (error) {
-        console.error('Error deleting MoM:', error);
-      }
-    }
-  };
-
-  const getMeetingTypeColor = (type: string) => {
-    const colors = {
-      team: 'bg-blue-50 text-blue-700 border-blue-200',
-      project: 'bg-green-50 text-green-700 border-green-200',
-      one_on_one: 'bg-purple-50 text-purple-700 border-purple-200',
-      client: 'bg-orange-50 text-orange-700 border-orange-200'
-    };
-    return colors[type as keyof typeof colors] || 'bg-gray-50 text-gray-700 border-gray-200';
-  };
-
-  const formatMeetingType = (type: string) => {
-    const types = {
-      team: 'Team Meeting',
-      project: 'Project Meeting',
-      one_on_one: 'One-on-One',
-      client: 'Client Meeting'
-    };
-    return types[type as keyof typeof types] || type;
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Minutes of Meeting</h2>
-          <p className="text-gray-600">Manage meeting records and action items</p>
+          <h2 className="text-2xl font-bold text-gray-900">Meetings & Minutes</h2>
+          <p className="text-gray-600">
+            {selectedTeam === 'all' ? 'All Teams' : selectedTeam} - 
+            {isAdmin ? ' Manage meetings and create minutes' : ' View meeting schedules and minutes'}
+          </p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)} className="bg-gradient-to-r from-blue-600 to-indigo-600">
-          <Plus className="h-4 w-4 mr-2" />
-          New MoM
-        </Button>
+        {isAdmin && (
+          <Dialog open={showMoMForm} onOpenChange={setShowMoMForm}>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Meeting
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create New Meeting</DialogTitle>
+              </DialogHeader>
+              <MoMForm onClose={() => setShowMoMForm(false)} />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search meetings..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={filterTeam} onValueChange={setFilterTeam}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by team" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Teams</SelectItem>
-                {teams.map((team) => (
-                  <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="team">Team Meeting</SelectItem>
-                <SelectItem value="project">Project Meeting</SelectItem>
-                <SelectItem value="one_on_one">One-on-One</SelectItem>
-                <SelectItem value="client">Client Meeting</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" onClick={() => {
-              setSearchTerm('');
-              setFilterTeam('all');
-              setFilterType('all');
-            }}>
-              Clear Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* MoM List */}
+      {/* Meetings Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredMoms.map((mom) => (
-          <Card key={mom.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+        {filteredMeetings.map((meeting) => (
+          <Card key={meeting.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold text-gray-900 mb-2">
-                    {mom.title}
-                  </CardTitle>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className={getMeetingTypeColor(mom.meeting_type)}>
-                      {formatMeetingType(mom.meeting_type)}
-                    </Badge>
-                    {mom.teams?.name && (
-                      <Badge variant="outline" className="bg-gray-50 text-gray-700">
-                        {mom.teams.name}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => setEditingMom(mom)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDeleteMom(mom.id)}>
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div className="flex justify-between items-start gap-2">
+                <CardTitle className="text-lg">{meeting.title}</CardTitle>
+                <Badge className={getStatusColor(meeting.status)}>
+                  {meeting.status}
+                </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(mom.date).toLocaleDateString()}</span>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-500" />
+                  <span>{meeting.date}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  <span>{mom.participants?.length || 0} participants</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500">⏰</span>
+                  <span>{meeting.time}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-gray-500" />
+                  <span>{meeting.team}</span>
+                </div>
+                <div className="text-gray-500">
+                  {meeting.attendees.length} attendees
                 </div>
               </div>
 
-              {mom.agenda && (
-                <div>
-                  <p className="text-sm text-gray-600 line-clamp-2">{mom.agenda}</p>
-                </div>
-              )}
+              <div>
+                <h4 className="font-medium mb-2">Agenda:</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  {meeting.agenda.slice(0, 2).map((item, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-gray-400">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                  {meeting.agenda.length > 2 && (
+                    <li className="text-gray-400 text-xs">
+                      +{meeting.agenda.length - 2} more items
+                    </li>
+                  )}
+                </ul>
+              </div>
 
-              {mom.action_items && mom.action_items.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-900 mb-1">Action Items:</p>
-                  <p className="text-sm text-gray-600">{mom.action_items.length} tasks assigned</p>
-                </div>
-              )}
-
-              <div className="text-xs text-gray-500">
-                Created by: {mom.profiles?.full_name || mom.profiles?.email || 'Unknown'}
+              <div className="flex gap-2 pt-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>{meeting.title}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium">Date & Time</h4>
+                          <p className="text-sm text-gray-600">{meeting.date} at {meeting.time}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Team</h4>
+                          <p className="text-sm text-gray-600">{meeting.team}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Attendees</h4>
+                        <p className="text-sm text-gray-600">{meeting.attendees.join(', ')}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Agenda</h4>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          {meeting.agenda.map((item, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-gray-400">•</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {meeting.minutes && (
+                        <div>
+                          <h4 className="font-medium">Minutes</h4>
+                          <p className="text-sm text-gray-600">{meeting.minutes}</p>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                {isAdmin && meeting.status === 'completed' && !meeting.minutes && (
+                  <Button size="sm" className="flex-1">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Add Minutes
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {filteredMoms.length === 0 && (
-        <Card className="border-2 border-dashed border-gray-300">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No meeting records found</h3>
-            <p className="text-gray-600 text-center mb-4">
-              {searchTerm || filterTeam !== 'all' || filterType !== 'all' 
-                ? 'No meetings match your current filters. Try adjusting your search criteria.'
-                : 'Start by creating your first Minutes of Meeting to keep track of important discussions and decisions.'
-              }
-            </p>
-            <Button onClick={() => setIsFormOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create First MoM
-            </Button>
+      {filteredMeetings.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-gray-500">No meetings found for the selected team.</p>
           </CardContent>
         </Card>
       )}
-
-      {/* MoM Form Modal */}
-      <MoMForm
-        isOpen={isFormOpen || !!editingMom}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingMom(undefined);
-        }}
-        onSubmit={editingMom ? handleUpdateMom : handleCreateMom}
-        teams={teams}
-        employees={employees}
-        initialData={editingMom}
-      />
     </div>
   );
 };
