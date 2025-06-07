@@ -37,43 +37,52 @@ const AddEmployeeForm = ({ isOpen, onClose, onSubmit, teams }: AddEmployeeFormPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="w-full max-w-md mx-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle>Add New Employee</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">Add New Employee</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="employeeName">Full Name</Label>
+          <div className="space-y-2">
+            <Label htmlFor="employeeName" className="text-sm font-medium">Full Name</Label>
             <Input
               id="employeeName"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Enter full name"
               required
+              className="w-full"
             />
           </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="employee@maxmoc.in"
               required
+              className="w-full"
             />
           </div>
-          <div>
-            <Label htmlFor="role">Role</Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="role" className="text-sm font-medium">Role</Label>
             <Input
               id="role"
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              placeholder="Job title/position"
               required
+              className="w-full"
             />
           </div>
-          <div>
-            <Label htmlFor="team">Team</Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="team" className="text-sm font-medium">Team</Label>
             <Select value={formData.team} onValueChange={(value) => setFormData({ ...formData, team: value })}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a team" />
               </SelectTrigger>
               <SelectContent>
@@ -85,20 +94,34 @@ const AddEmployeeForm = ({ isOpen, onClose, onSubmit, teams }: AddEmployeeFormPr
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label htmlFor="phone">Phone</Label>
+          
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
             <Input
               id="phone"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="+1 (555) 123-4567"
               required
+              className="w-full"
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+          
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
               Cancel
             </Button>
-            <Button type="submit">Add Employee</Button>
+            <Button 
+              type="submit"
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
+              Add Employee
+            </Button>
           </div>
         </form>
       </DialogContent>

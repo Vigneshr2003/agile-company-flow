@@ -39,61 +39,86 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
   ];
 
   return (
-    <div className="space-y-6 md:space-y-8">
-      {/* Welcome Section */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Team Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2 text-sm md:text-base">Manage your team and track progress</p>
-          <p className="text-sm text-green-600 mt-1">Frontend Demo - No Backend Integration</p>
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6 lg:space-y-8">
+        {/* Welcome Section */}
+        <div className="flex justify-between items-start">
+          <div className="w-full min-w-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">
+              Team Admin Dashboard
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+              Manage your team and track progress
+            </p>
+            <p className="text-xs sm:text-sm text-green-600 mt-1">
+              Frontend Demo - No Backend Integration
+            </p>
+          </div>
         </div>
+
+        {/* Stats Overview */}
+        <TeamStatsCards teamStats={teamStats} />
+
+        {/* Main Content Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4 sm:space-y-6">
+          <div className="w-full overflow-x-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-white border shadow-sm min-w-max">
+              <TabsTrigger 
+                value="overview" 
+                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="employees" 
+                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
+              >
+                Employees
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tasks" 
+                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
+              >
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger 
+                value="stock" 
+                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
+              >
+                Stock
+              </TabsTrigger>
+              <TabsTrigger 
+                value="meetings" 
+                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
+              >
+                Meetings
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <div className="w-full min-w-0">
+            <TabsContent value="overview" className="mt-0 space-y-4 sm:space-y-6">
+              <TeamOverviewContent myEmployees={myEmployees} recentTasks={recentTasks} />
+            </TabsContent>
+
+            <TabsContent value="employees" className="mt-0">
+              <TeamEmployeeManagement />
+            </TabsContent>
+
+            <TabsContent value="tasks" className="mt-0">
+              <TeamTaskView />
+            </TabsContent>
+
+            <TabsContent value="stock" className="mt-0">
+              <TeamStockView />
+            </TabsContent>
+
+            <TabsContent value="meetings" className="mt-0">
+              <MoMManagement selectedTeam="all" isAdmin={false} />
+            </TabsContent>
+          </div>
+        </Tabs>
       </div>
-
-      {/* Stats Overview */}
-      <TeamStatsCards teamStats={teamStats} />
-
-      {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <div className="overflow-x-auto">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-white border shadow-sm min-w-max">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="employees" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
-              Employees
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger value="stock" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
-              Stock
-            </TabsTrigger>
-            <TabsTrigger value="meetings" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
-              Meetings
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="overview" className="space-y-6">
-          <TeamOverviewContent myEmployees={myEmployees} recentTasks={recentTasks} />
-        </TabsContent>
-
-        <TabsContent value="employees">
-          <TeamEmployeeManagement />
-        </TabsContent>
-
-        <TabsContent value="tasks">
-          <TeamTaskView />
-        </TabsContent>
-
-        <TabsContent value="stock">
-          <TeamStockView />
-        </TabsContent>
-
-        <TabsContent value="meetings">
-          <MoMManagement selectedTeam="all" isAdmin={false} />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };

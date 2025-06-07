@@ -7,6 +7,7 @@ import { Plus, Users, Briefcase, Mail, Phone, MoreVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AddTeamForm from '@/components/AddTeamForm';
 import AddEmployeeForm from '@/components/AddEmployeeForm';
+import { authService } from '@/services/auth';
 
 interface TeamManagementProps {
   selectedTeam: string;
@@ -127,9 +128,32 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
     emp.team === selectedTeam
   );
 
-  const handleAddTeam = (teamData: any) => {
-    setTeams([...teams, teamData]);
-    console.log('New team added:', teamData);
+  const handleAddTeam = async (teamData: any) => {
+    try {
+      // Create team admin credentials in the auth service
+      await authService.createUser(
+        teamData.adminEmail,
+        teamData.adminPassword,
+        {
+          full_name: `${teamData.name} Admin`,
+          role: 'team_admin'
+        }
+      );
+      
+      // Add team to local state
+      const newTeam = {
+        id: teamData.id,
+        name: teamData.name,
+        description: teamData.description,
+        memberCount: teamData.memberCount,
+        lead: teamData.lead
+      };
+      
+      setTeams([...teams, newTeam]);
+      console.log('New team created with admin credentials:', teamData);
+    } catch (error) {
+      console.error('Error creating team:', error);
+    }
   };
 
   const handleAddEmployee = (employeeData: any) => {
@@ -147,136 +171,147 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="w-full max-w-full overflow-x-hidden">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="w-full lg:w-auto min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">Team Management</h2>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">
+              {selectedTeam === 'all' ? 'All Teams' : selectedTeam} - Manage teams and team members
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto text-xs sm:text-sm" 
+              onClick={() => setShowAddTeam(true)}
+            >
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              Add Team
+            </Button>
+            <Button 
+              className="w-full sm:w-auto text-xs sm:text-sm" 
+              onClick={() => setShowAddEmployee(true)}
+            >
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              Add Employee
+            </Button>
+          </div>
+        </div>
+
+        {/* Teams Overview */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
-          <p className="text-gray-600">
-            {selectedTeam === 'all' ? 'All Teams' : selectedTeam} - Manage teams and team members
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowAddTeam(true)}>
-            <Users className="h-4 w-4 mr-2" />
-            Add Team
-          </Button>
-          <Button className="w-full sm:w-auto" onClick={() => setShowAddEmployee(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Employee
-          </Button>
-        </div>
-      </div>
-
-      {/* Teams Overview */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Teams Overview</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredTeams.map((team) => (
-            <Card key={team.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{team.name}</CardTitle>
-                <p className="text-sm text-gray-600">{team.description}</p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Members:</span>
-                    <span className="font-medium">{team.memberCount}</span>
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Teams Overview</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+            {filteredTeams.map((team) => (
+              <Card key={team.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 sm:pb-3">
+                  <CardTitle className="text-sm sm:text-lg break-words">{team.name}</CardTitle>
+                  <p className="text-xs sm:text-sm text-gray-600 break-words">{team.description}</p>
+                </CardHeader>
+                <CardContent className="space-y-2 sm:space-y-3">
+                  <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500">Members:</span>
+                      <span className="font-medium">{team.memberCount}</span>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <span className="text-gray-500">Team Lead:</span>
+                      <span className="font-medium text-right break-words flex-1 ml-2">{team.lead}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Team Lead:</span>
-                    <span className="font-medium">{team.lead}</span>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="w-full mt-3">
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  Manage Team
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                  <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+                    <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    Manage Team
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Employee List */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Team Members</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filteredEmployees.map((employee) => (
-            <Card key={employee.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={employee.avatar} alt={employee.name} />
-                      <AvatarFallback>
-                        {employee.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900">{employee.name}</h4>
-                      <p className="text-sm text-gray-600">{employee.role}</p>
-                      <p className="text-sm text-gray-500">{employee.team}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          <span>{employee.email}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          <span>{employee.phone}</span>
+        {/* Employee List */}
+        <div>
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Team Members</h3>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+            {filteredEmployees.map((employee) => (
+              <Card key={employee.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                        <AvatarImage src={employee.avatar} alt={employee.name} />
+                        <AvatarFallback className="text-xs sm:text-sm">
+                          {employee.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 text-sm sm:text-base break-words">
+                          {employee.name}
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-600 break-words">{employee.role}</p>
+                        <p className="text-xs sm:text-sm text-gray-500 break-words">{employee.team}</p>
+                        <div className="flex flex-col gap-1 mt-2 text-xs text-gray-500">
+                          <div className="flex items-center gap-1 break-all">
+                            <Mail className="h-3 w-3 flex-shrink-0" />
+                            <span className="break-all">{employee.email}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3 flex-shrink-0" />
+                            <span>{employee.phone}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Badge className={`${getStatusColor(employee.status)} text-xs px-2 py-1`}>
+                        {employee.status}
+                      </Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem className="text-xs sm:text-sm">Edit Employee</DropdownMenuItem>
+                          <DropdownMenuItem className="text-xs sm:text-sm">View Profile</DropdownMenuItem>
+                          <DropdownMenuItem className="text-xs sm:text-sm">Change Team</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600 text-xs sm:text-sm">
+                            Remove Employee
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(employee.status)}>
-                      {employee.status}
-                    </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit Employee</DropdownMenuItem>
-                        <DropdownMenuItem>View Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Change Team</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Remove Employee
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
+
+        {filteredEmployees.length === 0 && (
+          <Card>
+            <CardContent className="text-center py-6 sm:py-8">
+              <p className="text-gray-500 text-sm sm:text-base">No employees found for the selected team.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Add Forms */}
+        <AddTeamForm
+          isOpen={showAddTeam}
+          onClose={() => setShowAddTeam(false)}
+          onSubmit={handleAddTeam}
+        />
+
+        <AddEmployeeForm
+          isOpen={showAddEmployee}
+          onClose={() => setShowAddEmployee(false)}
+          onSubmit={handleAddEmployee}
+          teams={teams}
+        />
       </div>
-
-      {filteredEmployees.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-gray-500">No employees found for the selected team.</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Add Forms */}
-      <AddTeamForm
-        isOpen={showAddTeam}
-        onClose={() => setShowAddTeam(false)}
-        onSubmit={handleAddTeam}
-      />
-
-      <AddEmployeeForm
-        isOpen={showAddEmployee}
-        onClose={() => setShowAddEmployee(false)}
-        onSubmit={handleAddEmployee}
-        teams={teams}
-      />
     </div>
   );
 };
