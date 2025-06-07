@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Calendar, Users, FileText, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import MoMForm from '@/components/MoMForm';
+import { MinutesOfMeeting } from '@/services/minutesOfMeeting';
 
 interface MoMManagementProps {
   selectedTeam: string;
@@ -12,6 +14,25 @@ interface MoMManagementProps {
 }
 
 const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
+  // Mock data for teams and employees
+  const teams = [
+    { id: '1', name: 'Software Team' },
+    { id: '2', name: 'Production Team' },
+    { id: '3', name: 'Design Team' },
+    { id: '4', name: 'Hardware & Assembly' }
+  ];
+
+  const employees = [
+    { id: '1', full_name: 'Alice Johnson', email: 'alice@company.com' },
+    { id: '2', full_name: 'Bob Smith', email: 'bob@company.com' },
+    { id: '3', full_name: 'Carol Davis', email: 'carol@company.com' },
+    { id: '4', full_name: 'David Wilson', email: 'david@company.com' },
+    { id: '5', full_name: 'Eva Brown', email: 'eva@company.com' },
+    { id: '6', full_name: 'Frank Miller', email: 'frank@company.com' },
+    { id: '7', full_name: 'Grace Lee', email: 'grace@company.com' },
+    { id: '8', full_name: 'Henry Chen', email: 'henry@company.com' }
+  ];
+
   const [meetings] = useState([
     {
       id: 1,
@@ -76,6 +97,12 @@ const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
     }
   };
 
+  const handleMoMSubmit = (mom: MinutesOfMeeting) => {
+    console.log('New MoM created:', mom);
+    // In a real app, this would save to the backend
+    setShowMoMForm(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -87,20 +114,10 @@ const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
           </p>
         </div>
         {isAdmin && (
-          <Dialog open={showMoMForm} onOpenChange={setShowMoMForm}>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Meeting
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Create New Meeting</DialogTitle>
-              </DialogHeader>
-              <MoMForm onClose={() => setShowMoMForm(false)} />
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => setShowMoMForm(true)} className="w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Meeting
+          </Button>
         )}
       </div>
 
@@ -218,6 +235,15 @@ const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* MoM Form */}
+      <MoMForm
+        isOpen={showMoMForm}
+        onClose={() => setShowMoMForm(false)}
+        onSubmit={handleMoMSubmit}
+        teams={teams}
+        employees={employees}
+      />
     </div>
   );
 };
