@@ -13,7 +13,7 @@ export interface AuthResponse {
   error?: string;
 }
 
-// Hardcoded user credentials
+// Hardcoded user credentials - removed admin role
 const users: Record<string, { password: string; user: User }> = {
   'sathya@gmail.com': {
     password: 'Maxmoc@2025',
@@ -30,7 +30,34 @@ const users: Record<string, { password: string; user: User }> = {
       id: '2',
       email: 'admin@software.maxmoc.in',
       role: 'team_admin',
-      full_name: 'Team Admin'
+      full_name: 'Software Team Admin'
+    }
+  },
+  'admin@production.maxmoc.in': {
+    password: 'Production@123',
+    user: {
+      id: '3',
+      email: 'admin@production.maxmoc.in',
+      role: 'team_admin',
+      full_name: 'Production Team Admin'
+    }
+  },
+  'admin@hardware.maxmoc.in': {
+    password: 'Hardware@123',
+    user: {
+      id: '4',
+      email: 'admin@hardware.maxmoc.in',
+      role: 'team_admin',
+      full_name: 'Hardware Team Admin'
+    }
+  },
+  'admin@design.maxmoc.in': {
+    password: 'Design@123',
+    user: {
+      id: '5',
+      email: 'admin@design.maxmoc.in',
+      role: 'team_admin',
+      full_name: 'Design Team Admin'
     }
   }
 };

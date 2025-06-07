@@ -7,9 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Package, Plus, Calendar, User, CheckSquare, Clock, AlertCircle, Warehouse, TrendingDown } from 'lucide-react';
 
-const StockManagement = () => {
+interface StockManagementProps {
+  selectedTeam?: string;
+}
+
+const StockManagement = ({ selectedTeam = 'all' }: StockManagementProps) => {
   const [activeTab, setActiveTab] = useState('requests');
   
   // Stock requests from teams
@@ -46,23 +51,35 @@ const StockManagement = () => {
       status: 'pending',
       priority: 'low',
       estimatedCost: '₹600'
+    },
+    {
+      id: 4,
+      itemName: 'Safety Equipment',
+      quantity: 10,
+      reason: 'Monthly safety gear replacement',
+      requestedBy: 'Production Team',
+      requestedDate: '2024-01-14',
+      status: 'approved',
+      priority: 'high',
+      estimatedCost: '₹400'
     }
   ]);
 
-  // Current stock inventory
+  // Current stock inventory with real-time updates
   const [stockInventory, setStockInventory] = useState([
-    { id: 1, itemName: 'Laptop Chargers', currentStock: 15, minStock: 5, maxStock: 25, status: 'good', lastUpdated: '2024-01-15' },
-    { id: 2, itemName: 'Circuit Boards', currentStock: 3, minStock: 10, maxStock: 50, status: 'low', lastUpdated: '2024-01-14' },
-    { id: 3, itemName: 'Safety Equipment', currentStock: 12, minStock: 8, maxStock: 20, status: 'good', lastUpdated: '2024-01-13' },
-    { id: 4, itemName: 'Keyboards and Mice', currentStock: 2, minStock: 5, maxStock: 15, status: 'critical', lastUpdated: '2024-01-12' },
-    { id: 5, itemName: 'Monitors', currentStock: 8, minStock: 3, maxStock: 12, status: 'good', lastUpdated: '2024-01-11' },
+    { id: 1, itemName: 'Laptop Chargers', currentStock: 15, minStock: 5, maxStock: 25, status: 'good', lastUpdated: '2024-01-15', location: 'Warehouse A' },
+    { id: 2, itemName: 'Circuit Boards', currentStock: 3, minStock: 10, maxStock: 50, status: 'critical', lastUpdated: '2024-01-14', location: 'Warehouse B' },
+    { id: 3, itemName: 'Safety Equipment', currentStock: 2, minStock: 8, maxStock: 20, status: 'critical', lastUpdated: '2024-01-13', location: 'Warehouse A' },
+    { id: 4, itemName: 'Keyboards and Mice', currentStock: 12, minStock: 5, maxStock: 15, status: 'good', lastUpdated: '2024-01-12', location: 'Warehouse C' },
+    { id: 5, itemName: 'Monitors', currentStock: 8, minStock: 3, maxStock: 12, status: 'good', lastUpdated: '2024-01-11', location: 'Warehouse A' },
   ]);
 
-  // Stock usage by teams
+  // Stock usage tracking by teams
   const [stockUsage, setStockUsage] = useState([
-    { id: 1, teamName: 'Software Team', itemName: 'Laptop Chargers', usedQuantity: 3, usageDate: '2024-01-15', updatedBy: 'John Doe' },
-    { id: 2, teamName: 'Production Team', itemName: 'Safety Equipment', usedQuantity: 5, usageDate: '2024-01-14', updatedBy: 'Jane Smith' },
-    { id: 3, teamName: 'Hardware & Assembly', itemName: 'Circuit Boards', usedQuantity: 8, usageDate: '2024-01-13', updatedBy: 'Mike Johnson' },
+    { id: 1, teamName: 'Software Team', itemName: 'Laptop Chargers', usedQuantity: 3, usageDate: '2024-01-15', updatedBy: 'John Doe', remainingStock: 15 },
+    { id: 2, teamName: 'Production Team', itemName: 'Safety Equipment', usedQuantity: 5, usageDate: '2024-01-14', updatedBy: 'Jane Smith', remainingStock: 2 },
+    { id: 3, teamName: 'Hardware & Assembly', itemName: 'Circuit Boards', usedQuantity: 8, usageDate: '2024-01-13', updatedBy: 'Mike Johnson', remainingStock: 3 },
+    { id: 4, teamName: 'Design Team', itemName: 'Keyboards and Mice', usedQuantity: 2, usageDate: '2024-01-12', updatedBy: 'Sarah Wilson', remainingStock: 12 },
   ]);
 
   const [filterStatus, setFilterStatus] = useState('all');
@@ -74,7 +91,7 @@ const StockManagement = () => {
     ));
   };
 
-  const getStockStatus = (current: number, min: number, max: number) => {
+  const getStockStatus = (current: number, min: number) => {
     if (current <= min * 0.5) return 'critical';
     if (current <= min) return 'low';
     return 'good';
@@ -116,9 +133,16 @@ const StockManagement = () => {
     }
   };
 
-  const filteredRequests = filterStatus === 'all' 
-    ? stockRequests 
-    : stockRequests.filter(request => request.status === filterStatus);
+  // Filter data based on selected team
+  const filteredRequests = stockRequests.filter(request => {
+    const matchesTeam = selectedTeam === 'all' || request.requestedBy.toLowerCase().includes(selectedTeam.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || request.status === filterStatus;
+    return matchesTeam && matchesStatus;
+  });
+
+  const filteredUsage = stockUsage.filter(usage => 
+    selectedTeam === 'all' || usage.teamName.toLowerCase().includes(selectedTeam.toLowerCase())
+  );
 
   const criticalItems = stockInventory.filter(item => item.status === 'critical').length;
   const lowStockItems = stockInventory.filter(item => item.status === 'low').length;
@@ -126,80 +150,90 @@ const StockManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Stock Management</h2>
-          <p className="text-gray-600">Manage stock requests and inventory levels</p>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900">Stock Management</h2>
+          <p className="text-gray-600 text-sm md:text-base">Manage stock requests and inventory levels</p>
+          {selectedTeam !== 'all' && (
+            <p className="text-sm text-blue-600 mt-1">Filtered by: {selectedTeam}</p>
+          )}
         </div>
       </div>
 
-      {/* Alert for critical stock */}
+      {/* Critical Stock Alerts */}
       {criticalItems > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-red-600" />
-            <p className="text-red-800 font-medium">
-              Critical Stock Alert: {criticalItems} item(s) need immediate restocking
-            </p>
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-red-800 font-medium text-sm md:text-base">
+                🚨 Critical Stock Alert: {criticalItems} item(s) need immediate restocking
+              </p>
+              <p className="text-red-700 text-xs md:text-sm mt-1">
+                Items at critical levels: {stockInventory.filter(item => item.status === 'critical').map(item => item.itemName).join(', ')}
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-white border shadow-sm">
-          <TabsTrigger value="requests" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-            Stock Requests
-          </TabsTrigger>
-          <TabsTrigger value="inventory" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-            In Stock
-          </TabsTrigger>
-          <TabsTrigger value="usage" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-            Usage Tracking
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-3 bg-white border shadow-sm min-w-max">
+            <TabsTrigger value="requests" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 text-xs md:text-sm">
+              Stock Requests
+            </TabsTrigger>
+            <TabsTrigger value="inventory" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 text-xs md:text-sm">
+              In Stock
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 text-xs md:text-sm">
+              Usage Tracking
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Stock Requests Tab */}
         <TabsContent value="requests" className="space-y-6">
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-orange-600 text-sm font-medium">Pending Requests</p>
-                    <p className="text-2xl font-bold text-orange-900">
-                      {stockRequests.filter(r => r.status === 'pending').length}
+                    <p className="text-xl md:text-2xl font-bold text-orange-900">
+                      {filteredRequests.filter(r => r.status === 'pending').length}
                     </p>
                   </div>
-                  <Clock className="h-8 w-8 text-orange-600" />
+                  <Clock className="h-6 w-6 md:h-8 md:w-8 text-orange-600" />
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-600 text-sm font-medium">Approved Requests</p>
-                    <p className="text-2xl font-bold text-green-900">
-                      {stockRequests.filter(r => r.status === 'approved').length}
+                    <p className="text-green-600 text-sm font-medium">Approved</p>
+                    <p className="text-xl md:text-2xl font-bold text-green-900">
+                      {filteredRequests.filter(r => r.status === 'approved').length}
                     </p>
                   </div>
-                  <CheckSquare className="h-8 w-8 text-green-600" />
+                  <CheckSquare className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-              <CardContent className="p-6">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 sm:col-span-2 lg:col-span-1">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-600 text-sm font-medium">Total Value</p>
-                    <p className="text-2xl font-bold text-blue-900">
-                      ₹{stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('₹', '')), 0)}
+                    <p className="text-xl md:text-2xl font-bold text-blue-900">
+                      ₹{filteredRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('₹', '')), 0)}
                     </p>
                   </div>
-                  <Package className="h-8 w-8 text-blue-600" />
+                  <Package className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
                 </div>
               </CardContent>
             </Card>
@@ -208,7 +242,7 @@ const StockManagement = () => {
           {/* Filter */}
           <div className="flex justify-end">
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -220,8 +254,8 @@ const StockManagement = () => {
             </Select>
           </div>
 
-          {/* Stock Requests */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Stock Requests Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
             {filteredRequests.map((request) => (
               <Card key={request.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200">
                 <CardHeader className="pb-3">
@@ -243,11 +277,11 @@ const StockManagement = () => {
                   {/* Request Info */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <User className="h-4 w-4" />
-                      <span>{request.requestedBy}</span>
+                      <User className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{request.requestedBy}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="h-4 w-4" />
+                      <Calendar className="h-4 w-4 flex-shrink-0" />
                       <span>{new Date(request.requestedDate).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -273,7 +307,7 @@ const StockManagement = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="flex-1 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                          className="flex-1 hover:bg-green-50 hover:text-green-700 hover:border-green-300 text-xs"
                           onClick={() => updateRequestStatus(request.id, 'approved')}
                         >
                           Approve
@@ -281,7 +315,7 @@ const StockManagement = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="flex-1 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                          className="flex-1 hover:bg-red-50 hover:text-red-700 hover:border-red-300 text-xs"
                           onClick={() => updateRequestStatus(request.id, 'rejected')}
                         >
                           Reject
@@ -295,142 +329,127 @@ const StockManagement = () => {
           </div>
         </TabsContent>
 
-        {/* Inventory Tab */}
+        {/* In Stock Tab */}
         <TabsContent value="inventory" className="space-y-6">
           {/* Inventory Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-600 text-sm font-medium">Total Items</p>
-                    <p className="text-2xl font-bold text-blue-900">{stockInventory.length}</p>
-                  </div>
-                  <Warehouse className="h-8 w-8 text-blue-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="text-center">
+                  <p className="text-blue-600 text-sm font-medium">Total Items</p>
+                  <p className="text-xl md:text-2xl font-bold text-blue-900">{stockInventory.length}</p>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-600 text-sm font-medium">Good Stock</p>
-                    <p className="text-2xl font-bold text-green-900">
-                      {stockInventory.filter(item => item.status === 'good').length}
-                    </p>
-                  </div>
-                  <CheckSquare className="h-8 w-8 text-green-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="text-center">
+                  <p className="text-green-600 text-sm font-medium">Good Stock</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-900">
+                    {stockInventory.filter(item => item.status === 'good').length}
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-600 text-sm font-medium">Low Stock</p>
-                    <p className="text-2xl font-bold text-orange-900">{lowStockItems}</p>
-                  </div>
-                  <TrendingDown className="h-8 w-8 text-orange-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="text-center">
+                  <p className="text-orange-600 text-sm font-medium">Low Stock</p>
+                  <p className="text-xl md:text-2xl font-bold text-orange-900">{lowStockItems}</p>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-red-600 text-sm font-medium">Critical</p>
-                    <p className="text-2xl font-bold text-red-900">{criticalItems}</p>
-                  </div>
-                  <AlertCircle className="h-8 w-8 text-red-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="text-center">
+                  <p className="text-red-600 text-sm font-medium">Critical</p>
+                  <p className="text-xl md:text-2xl font-bold text-red-900">{criticalItems}</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Inventory Items */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {stockInventory.map((item) => (
-              <Card key={item.id} className="border-0 shadow-lg">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg font-semibold text-gray-900">
-                      {item.itemName}
-                    </CardTitle>
-                    <Badge variant="outline" className={getStockStatusColor(item.status)}>
-                      {item.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Stock Levels */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Current Stock:</span>
-                      <span className="font-medium">{item.currentStock}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Min Stock:</span>
-                      <span className="font-medium">{item.minStock}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Max Stock:</span>
-                      <span className="font-medium">{item.maxStock}</span>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Stock Level</span>
-                      <span>{Math.round((item.currentStock / item.maxStock) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          item.status === 'critical' ? 'bg-red-500' :
-                          item.status === 'low' ? 'bg-orange-500' : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.min((item.currentStock / item.maxStock) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {/* Last Updated */}
-                  <div className="text-xs text-gray-500">
-                    Last updated: {new Date(item.lastUpdated).toLocaleDateString()}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {/* Inventory Table - Responsive */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Warehouse className="h-5 w-5 text-blue-600" />
+                Current Stock Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[150px]">Item Name</TableHead>
+                      <TableHead className="text-center">Current</TableHead>
+                      <TableHead className="text-center">Min</TableHead>
+                      <TableHead className="text-center">Max</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                      <TableHead className="min-w-[120px]">Location</TableHead>
+                      <TableHead className="min-w-[100px]">Updated</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stockInventory.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.itemName}</TableCell>
+                        <TableCell className="text-center">{item.currentStock}</TableCell>
+                        <TableCell className="text-center">{item.minStock}</TableCell>
+                        <TableCell className="text-center">{item.maxStock}</TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline" className={getStockStatusColor(item.status)}>
+                            {item.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell className="text-sm text-gray-600">
+                          {new Date(item.lastUpdated).toLocaleDateString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Usage Tracking Tab */}
         <TabsContent value="usage" className="space-y-6">
           <Card className="border-0 shadow-lg">
             <CardHeader>
-              <CardTitle>Recent Stock Usage</CardTitle>
-              <CardDescription>Track how teams are using approved stock items</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingDown className="h-5 w-5 text-blue-600" />
+                Real-time Stock Usage Tracking
+              </CardTitle>
+              <CardDescription>Monitor how teams update their stock usage in real-time</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {stockUsage.map((usage) => (
-                  <div key={usage.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                {filteredUsage.map((usage) => (
+                  <div key={usage.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-lg gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{usage.itemName}</h4>
-                          <p className="text-sm text-gray-600">{usage.teamName}</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                        <div className="min-w-0">
+                          <h4 className="font-medium text-gray-900 truncate">{usage.itemName}</h4>
+                          <p className="text-sm text-gray-600 truncate">{usage.teamName}</p>
                         </div>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          -{usage.usedQuantity} units
-                        </Badge>
+                        <div className="flex gap-2">
+                          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                            -{usage.usedQuantity} units
+                          </Badge>
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                            {usage.remainingStock} left
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left md:text-right">
                       <p className="text-sm text-gray-600">Updated by {usage.updatedBy}</p>
                       <p className="text-xs text-gray-500">{new Date(usage.usageDate).toLocaleDateString()}</p>
                     </div>

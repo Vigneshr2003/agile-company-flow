@@ -98,45 +98,45 @@ const TeamsOverview = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Teams Overview</h2>
-          <p className="text-gray-600">View all teams and their members</p>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900">Teams Overview</h2>
+          <p className="text-gray-600 text-sm md:text-base">View all teams and their members</p>
         </div>
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="text-center">
               <p className="text-blue-600 text-sm font-medium">Total Teams</p>
-              <p className="text-2xl font-bold text-blue-900">{teamsData.length}</p>
+              <p className="text-xl md:text-2xl font-bold text-blue-900">{teamsData.length}</p>
             </div>
           </CardContent>
         </Card>
         <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="text-center">
               <p className="text-green-600 text-sm font-medium">Total Employees</p>
-              <p className="text-2xl font-bold text-green-900">{totalEmployees}</p>
+              <p className="text-xl md:text-2xl font-bold text-green-900">{totalEmployees}</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100">
-          <CardContent className="p-6">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 sm:col-span-2 lg:col-span-1">
+          <CardContent className="p-4 md:p-6">
             <div className="text-center">
               <p className="text-purple-600 text-sm font-medium">Active Tasks</p>
-              <p className="text-2xl font-bold text-purple-900">{totalTasks}</p>
+              <p className="text-xl md:text-2xl font-bold text-purple-900">{totalTasks}</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Teams Section */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           {/* Filters */}
-          <div className="flex gap-4 items-center">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+            <div className="relative flex-1 max-w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Search teams or employees..."
@@ -146,7 +146,7 @@ const TeamsOverview = () => {
               />
             </div>
             <Select value={filterTeam} onValueChange={setFilterTeam}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -158,16 +158,16 @@ const TeamsOverview = () => {
             </Select>
           </div>
 
-          {/* Teams Grid */}
+          {/* Teams Grid - Employees grouped by teams */}
           <div className="space-y-6">
             {filteredTeams.map((team) => (
               <Card key={team.id} className="border-0 shadow-lg">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
+                    <div className="flex-1">
                       <CardTitle className="text-lg font-semibold text-gray-900">{team.name}</CardTitle>
                       <CardDescription className="text-sm text-gray-600">
-                        Admin: {team.admin.name} • {team.employees.length} employees • {team.activeTasks} active tasks
+                        Team Admin: {team.admin.name} • {team.employees.length} employees • {team.activeTasks} active tasks
                       </CardDescription>
                     </div>
                     <Badge variant="outline" className={getTeamColor(team.name)}>
@@ -179,17 +179,17 @@ const TeamsOverview = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {team.employees.map((employee) => (
                       <div key={employee.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
                           <AvatarImage src={employee.avatar} alt={employee.name} />
-                          <AvatarFallback className="bg-blue-100 text-blue-700">
+                          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                             {employee.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 text-sm">{employee.name}</h4>
-                          <p className="text-xs text-gray-600">{employee.role}</p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 text-sm truncate">{employee.name}</h4>
+                          <p className="text-xs text-gray-600 truncate">{employee.role}</p>
                         </div>
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs flex-shrink-0">
                           {employee.status}
                         </Badge>
                       </div>
@@ -202,10 +202,10 @@ const TeamsOverview = () => {
         </div>
 
         {/* Recent Activity Section */}
-        <div>
+        <div className="xl:col-span-1">
           <Card className="border-0 shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5 text-blue-600" />
                 Recent Activity
               </CardTitle>
@@ -213,14 +213,14 @@ const TeamsOverview = () => {
             <CardContent className="space-y-4">
               {recentActivities.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="text-blue-600 mt-1">
+                  <div className="text-blue-600 mt-1 flex-shrink-0">
                     {getActivityIcon(activity.type)}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900">{activity.action}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-600">{activity.user}</span>
-                      <span className="text-xs text-gray-400">•</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 break-words">{activity.action}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                      <span className="text-xs text-gray-600 truncate">{activity.user}</span>
+                      <span className="text-xs text-gray-400 hidden sm:inline">•</span>
                       <span className="text-xs text-gray-500">{activity.time}</span>
                     </div>
                   </div>

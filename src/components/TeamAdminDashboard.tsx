@@ -39,12 +39,12 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Welcome Section */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Team Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage your team and track progress</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Team Admin Dashboard</h1>
+          <p className="text-gray-600 mt-2 text-sm md:text-base">Manage your team and track progress</p>
           <p className="text-sm text-green-600 mt-1">Frontend Demo - No Backend Integration</p>
         </div>
       </div>
@@ -54,23 +54,25 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 bg-white border shadow-sm">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="employees" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-            Employees
-          </TabsTrigger>
-          <TabsTrigger value="tasks" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-            Tasks
-          </TabsTrigger>
-          <TabsTrigger value="stock" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-            Stock
-          </TabsTrigger>
-          <TabsTrigger value="meetings" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-            Meetings
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-white border shadow-sm min-w-max">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="employees" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Employees
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger value="stock" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Stock
+            </TabsTrigger>
+            <TabsTrigger value="meetings" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Meetings
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="space-y-6">
           <TeamOverviewContent myEmployees={myEmployees} recentTasks={recentTasks} />
@@ -89,7 +91,7 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
         </TabsContent>
 
         <TabsContent value="meetings">
-          <MoMManagement />
+          <MoMManagement selectedTeam="all" isAdmin={false} />
         </TabsContent>
       </Tabs>
     </div>

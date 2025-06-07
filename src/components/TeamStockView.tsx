@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, Plus, Calendar, Clock, CheckSquare, AlertCircle, DollarSign } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Package, Plus, Calendar, Clock, CheckSquare, AlertCircle, DollarSign, Minus } from 'lucide-react';
 
 const TeamStockView = () => {
+  const [activeTab, setActiveTab] = useState('requests');
   const [stockRequests, setStockRequests] = useState([
     {
       id: 1,
@@ -44,13 +45,33 @@ const TeamStockView = () => {
     }
   ]);
 
+  const [teamStock, setTeamStock] = useState([
+    { id: 1, itemName: 'Laptop Chargers', allocatedStock: 10, usedStock: 3, remainingStock: 7 },
+    { id: 2, itemName: 'External Monitors', allocatedStock: 5, usedStock: 2, remainingStock: 3 },
+    { id: 3, itemName: 'Safety Equipment', allocatedStock: 8, usedStock: 5, remainingStock: 3 },
+  ]);
+
+  const [stockUsageHistory, setStockUsageHistory] = useState([
+    { id: 1, itemName: 'Laptop Chargers', usedQuantity: 2, date: '2024-01-15', reason: 'Developer workstation setup' },
+    { id: 2, itemName: 'External Monitors', usedQuantity: 1, date: '2024-01-14', reason: 'New employee setup' },
+    { id: 3, itemName: 'Safety Equipment', usedQuantity: 3, date: '2024-01-13', reason: 'Monthly replacement' },
+  ]);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isUsageModalOpen, setIsUsageModalOpen] = useState(false);
+  const [selectedStockItem, setSelectedStockItem] = useState<any>(null);
+  
   const [newRequest, setNewRequest] = useState({
     itemName: '',
     quantity: '',
     reason: '',
     priority: 'medium',
     estimatedCost: ''
+  });
+
+  const [usageUpdate, setUsageUpdate] = useState({
+    quantity: '',
+    reason: ''
   });
 
   const handleCreateRequest = () => {
@@ -64,6 +85,36 @@ const TeamStockView = () => {
     setStockRequests([...stockRequests, request]);
     setNewRequest({ itemName: '', quantity: '', reason: '', priority: 'medium', estimatedCost: '' });
     setIsCreateModalOpen(false);
+  };
+
+  const handleUpdateUsage = () => {
+    const quantity = parseInt(usageUpdate.quantity);
+    if (selectedStockItem && quantity > 0 && quantity <= selectedStockItem.remainingStock) {
+      // Update team stock
+      setTeamStock(prev => prev.map(item => 
+        item.id === selectedStockItem.id 
+          ? { 
+              ...item, 
+              usedStock: item.usedStock + quantity, 
+              remainingStock: item.remainingStock - quantity 
+            }
+          : item
+      ));
+
+      // Add to usage history
+      const newUsage = {
+        id: stockUsageHistory.length + 1,
+        itemName: selectedStockItem.itemName,
+        usedQuantity: quantity,
+        date: new Date().toISOString().split('T')[0],
+        reason: usageUpdate.reason
+      };
+      setStockUsageHistory([newUsage, ...stockUsageHistory]);
+
+      setUsageUpdate({ quantity: '', reason: '' });
+      setIsUsageModalOpen(false);
+      setSelectedStockItem(null);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -96,14 +147,14 @@ const TeamStockView = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Stock Requests</h2>
-          <p className="text-gray-600">Manage your team's stock and equipment requests</p>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900">Stock Management</h2>
+          <p className="text-gray-600 text-sm md:text-base">Manage your team's stock requests and usage</p>
         </div>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+            <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               New Request
             </Button>
@@ -182,130 +233,260 @@ const TeamStockView = () => {
         </Dialog>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-600 text-sm font-medium">Pending</p>
-                <p className="text-2xl font-bold text-orange-900">
-                  {stockRequests.filter(r => r.status === 'pending').length}
-                </p>
-              </div>
-              <Clock className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-3 bg-white border shadow-sm min-w-max">
+            <TabsTrigger value="requests" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              My Requests
+            </TabsTrigger>
+            <TabsTrigger value="allocated" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Allocated Stock
+            </TabsTrigger>
+            <TabsTrigger value="usage" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs md:text-sm">
+              Usage History
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-600 text-sm font-medium">Approved</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {stockRequests.filter(r => r.status === 'approved').length}
-                </p>
-              </div>
-              <CheckSquare className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-600 text-sm font-medium">Total Value</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  ${stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('₹', '')), 0)}
-                </p>
-              </div>
-              <DollarSign className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Stock Requests List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {stockRequests.map((request) => (
-          <Card key={request.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold text-gray-900">
-                    {request.itemName}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-gray-600 mt-1">
-                    Quantity: {request.quantity} • {request.estimatedCost}
-                  </CardDescription>
+        {/* Stock Requests Tab */}
+        <TabsContent value="requests" className="space-y-6">
+          {/* Summary Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-orange-600 text-sm font-medium">Pending</p>
+                    <p className="text-xl md:text-2xl font-bold text-orange-900">
+                      {stockRequests.filter(r => r.status === 'pending').length}
+                    </p>
+                  </div>
+                  <Clock className="h-6 w-6 md:h-8 md:w-8 text-orange-600" />
                 </div>
-                <Badge variant="outline" className={getPriorityColor(request.priority)}>
-                  {request.priority}
-                </Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-600 text-sm font-medium">Approved</p>
+                    <p className="text-xl md:text-2xl font-bold text-green-900">
+                      {stockRequests.filter(r => r.status === 'approved').length}
+                    </p>
+                  </div>
+                  <CheckSquare className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 sm:col-span-2 lg:col-span-1">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-600 text-sm font-medium">Total Value</p>
+                    <p className="text-xl md:text-2xl font-bold text-blue-900">
+                      ₹{stockRequests.reduce((sum, r) => sum + parseInt(r.estimatedCost.replace('₹', '')), 0)}
+                    </p>
+                  </div>
+                  <DollarSign className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Stock Requests List */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            {stockRequests.map((request) => (
+              <Card key={request.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg font-semibold text-gray-900">
+                        {request.itemName}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-gray-600 mt-1">
+                        Quantity: {request.quantity} • {request.estimatedCost}
+                      </CardDescription>
+                    </div>
+                    <Badge variant="outline" className={getPriorityColor(request.priority)}>
+                      {request.priority}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Request Details */}
+                  <div>
+                    <p className="text-sm text-gray-600 line-clamp-2">{request.reason}</p>
+                  </div>
+
+                  {/* Date and Status */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Calendar className="h-4 w-4" />
+                      <span>Requested: {new Date(request.requestedDate).toLocaleDateString()}</span>
+                    </div>
+                    <Badge variant="outline" className={getStatusColor(request.status)}>
+                      {getStatusIcon(request.status)}
+                      <span className="ml-1 capitalize">{request.status}</span>
+                    </Badge>
+                  </div>
+
+                  {/* Status Messages */}
+                  {request.status === 'pending' && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <p className="text-orange-700 text-sm">
+                        Your request is being reviewed by the Super Admin.
+                      </p>
+                    </div>
+                  )}
+                  {request.status === 'approved' && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <p className="text-green-700 text-sm">
+                        Request approved! Items will be allocated to your team soon.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Allocated Stock Tab */}
+        <TabsContent value="allocated" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            {teamStock.map((item) => (
+              <Card key={item.id} className="border-0 shadow-lg">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-gray-900">{item.itemName}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Stock Information */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Allocated:</span>
+                      <span className="font-medium">{item.allocatedStock}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Used:</span>
+                      <span className="font-medium text-red-600">{item.usedStock}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Remaining:</span>
+                      <span className="font-medium text-green-600">{item.remainingStock}</span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Usage</span>
+                      <span>{Math.round((item.usedStock / item.allocatedStock) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${(item.usedStock / item.allocatedStock) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Update Usage Button */}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => {
+                      setSelectedStockItem(item);
+                      setIsUsageModalOpen(true);
+                    }}
+                    disabled={item.remainingStock <= 0}
+                  >
+                    <Minus className="h-4 w-4 mr-2" />
+                    Update Usage
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Usage Update Modal */}
+          <Dialog open={isUsageModalOpen} onOpenChange={setIsUsageModalOpen}>
+            <DialogContent className="sm:max-w-[400px]">
+              <DialogHeader>
+                <DialogTitle>Update Stock Usage</DialogTitle>
+                <DialogDescription>
+                  Update how much stock your team has used for {selectedStockItem?.itemName}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="usageQuantity">Quantity Used</Label>
+                  <Input
+                    id="usageQuantity"
+                    type="number"
+                    placeholder="Enter quantity used"
+                    value={usageUpdate.quantity}
+                    onChange={(e) => setUsageUpdate({ ...usageUpdate, quantity: e.target.value })}
+                    max={selectedStockItem?.remainingStock || 0}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Available: {selectedStockItem?.remainingStock || 0} units
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="usageReason">Reason for Usage</Label>
+                  <Textarea
+                    id="usageReason"
+                    placeholder="Explain why the stock was used..."
+                    value={usageUpdate.reason}
+                    onChange={(e) => setUsageUpdate({ ...usageUpdate, reason: e.target.value })}
+                  />
+                </div>
               </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsUsageModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdateUsage}>Update Usage</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
+
+        {/* Usage History Tab */}
+        <TabsContent value="usage" className="space-y-6">
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle>Stock Usage History</CardTitle>
+              <CardDescription>Track your team's stock usage over time</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Request Details */}
-              <div>
-                <p className="text-sm text-gray-600 line-clamp-2">{request.reason}</p>
+            <CardContent>
+              <div className="space-y-4">
+                {stockUsageHistory.map((usage) => (
+                  <div key={usage.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-lg gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                        <div>
+                          <h4 className="font-medium text-gray-900">{usage.itemName}</h4>
+                          <p className="text-sm text-gray-600">{usage.reason}</p>
+                        </div>
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 w-fit">
+                          -{usage.usedQuantity} units
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-left md:text-right">
+                      <p className="text-sm text-gray-600">{new Date(usage.date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              {/* Date and Status */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span>Requested: {new Date(request.requestedDate).toLocaleDateString()}</span>
-                </div>
-                <Badge variant="outline" className={getStatusColor(request.status)}>
-                  {getStatusIcon(request.status)}
-                  <span className="ml-1 capitalize">{request.status}</span>
-                </Badge>
-              </div>
-
-              {/* Status Message */}
-              {request.status === 'pending' && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                  <p className="text-orange-700 text-sm">
-                    Your request is being reviewed by the admin team.
-                  </p>
-                </div>
-              )}
-              {request.status === 'approved' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-green-700 text-sm">
-                    Request approved! Items will be delivered soon.
-                  </p>
-                </div>
-              )}
-              {request.status === 'rejected' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-red-700 text-sm">
-                    Request was not approved. Contact admin for more details.
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {stockRequests.length === 0 && (
-        <Card className="border-2 border-dashed border-gray-300">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Package className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No stock requests</h3>
-            <p className="text-gray-600 text-center mb-4">
-              You haven't made any stock requests yet. Create your first request to get started.
-            </p>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create First Request
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
