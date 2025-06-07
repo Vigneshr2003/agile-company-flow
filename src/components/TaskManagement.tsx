@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Plus, Filter, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AddTaskForm from '@/components/AddTaskForm';
 
 interface TaskManagementProps {
   selectedTeam: string;
 }
 
 const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
-  const [tasks] = useState([
+  const [tasks, setTasks] = useState([
     { 
       id: 1, 
       title: 'Fix login authentication bug', 
@@ -72,10 +73,13 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterPriority, setFilterPriority] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddTask, setShowAddTask] = useState(false);
 
-  // Filter tasks based on selected team
+  // Fix filtering logic - improve team matching
   const filteredTasks = tasks.filter(task => {
-    const matchesTeam = selectedTeam === 'all' || task.team === selectedTeam;
+    const matchesTeam = selectedTeam === 'all' || 
+                       task.team.toLowerCase() === selectedTeam.toLowerCase() ||
+                       task.team === selectedTeam;
     const matchesStatus = filterStatus === 'all' || task.status === filterStatus;
     const matchesPriority = filterPriority === 'all' || task.priority === filterPriority;
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,6 +87,11 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
     
     return matchesTeam && matchesStatus && matchesPriority && matchesSearch;
   });
+
+  const handleAddTask = (taskData: any) => {
+    setTasks([...tasks, taskData]);
+    console.log('New task added:', taskData);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -111,7 +120,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
             {selectedTeam === 'all' ? 'All Teams' : selectedTeam} - Track and manage tasks across your organization
           </p>
         </div>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={() => setShowAddTask(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Task
         </Button>
@@ -222,6 +231,13 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Add Task Form */}
+      <AddTaskForm
+        isOpen={showAddTask}
+        onClose={() => setShowAddTask(false)}
+        onSubmit={handleAddTask}
+      />
     </div>
   );
 };

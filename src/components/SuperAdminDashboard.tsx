@@ -19,13 +19,13 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedTeam, setSelectedTeam] = useState('all');
 
-  // Available teams for filtering
+  // Updated teams to match the data structure used in components
   const teams = [
     { id: 'all', name: 'All Teams' },
-    { id: 'software', name: 'Software Team' },
-    { id: 'production', name: 'Production Team' },
-    { id: 'hardware', name: 'Hardware & Assembly' },
-    { id: 'design', name: 'Design Team' },
+    { id: 'Software Team', name: 'Software Team' },
+    { id: 'Production Team', name: 'Production Team' },
+    { id: 'Hardware & Assembly', name: 'Hardware & Assembly' },
+    { id: 'Design Team', name: 'Design Team' },
   ];
 
   return (

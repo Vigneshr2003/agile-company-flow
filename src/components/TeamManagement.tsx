@@ -5,13 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Users, Briefcase, Mail, Phone, MoreVertical } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import AddTeamForm from '@/components/AddTeamForm';
+import AddEmployeeForm from '@/components/AddEmployeeForm';
 
 interface TeamManagementProps {
   selectedTeam: string;
 }
 
 const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
-  const [teams] = useState([
+  const [teams, setTeams] = useState([
     {
       id: 'software',
       name: 'Software Team',
@@ -42,7 +44,7 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
     }
   ]);
 
-  const [employees] = useState([
+  const [employees, setEmployees] = useState([
     {
       id: 1,
       name: 'Alice Johnson',
@@ -111,9 +113,29 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
     }
   ]);
 
-  // Filter teams and employees based on selectedTeam
-  const filteredTeams = selectedTeam === 'all' ? teams : teams.filter(team => team.name === selectedTeam);
-  const filteredEmployees = selectedTeam === 'all' ? employees : employees.filter(emp => emp.team === selectedTeam);
+  const [showAddTeam, setShowAddTeam] = useState(false);
+  const [showAddEmployee, setShowAddEmployee] = useState(false);
+
+  // Fix filtering logic
+  const filteredTeams = selectedTeam === 'all' ? teams : teams.filter(team => 
+    team.name.toLowerCase() === selectedTeam.toLowerCase() || 
+    team.id === selectedTeam
+  );
+  
+  const filteredEmployees = selectedTeam === 'all' ? employees : employees.filter(emp => 
+    emp.team.toLowerCase() === selectedTeam.toLowerCase() ||
+    emp.team === selectedTeam
+  );
+
+  const handleAddTeam = (teamData: any) => {
+    setTeams([...teams, teamData]);
+    console.log('New team added:', teamData);
+  };
+
+  const handleAddEmployee = (employeeData: any) => {
+    setEmployees([...employees, employeeData]);
+    console.log('New employee added:', employeeData);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -134,11 +156,11 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button variant="outline" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowAddTeam(true)}>
             <Users className="h-4 w-4 mr-2" />
             Add Team
           </Button>
-          <Button className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto" onClick={() => setShowAddEmployee(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Employee
           </Button>
@@ -241,6 +263,20 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Add Forms */}
+      <AddTeamForm
+        isOpen={showAddTeam}
+        onClose={() => setShowAddTeam(false)}
+        onSubmit={handleAddTeam}
+      />
+
+      <AddEmployeeForm
+        isOpen={showAddEmployee}
+        onClose={() => setShowAddEmployee(false)}
+        onSubmit={handleAddEmployee}
+        teams={teams}
+      />
     </div>
   );
 };
