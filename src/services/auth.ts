@@ -87,5 +87,24 @@ export const authService = {
       success: false,
       error: 'Email not found'
     };
+  },
+
+  // Frontend-only password update
+  async updatePassword(newPassword: string): Promise<{ error?: { message: string } }> {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) {
+      return { error: { message: 'No user logged in' } };
+    }
+    
+    // In a real app, this would update the backend
+    console.log('Password would be updated for:', currentUser.email);
+    return {};
+  },
+
+  // Frontend-only user creation
+  async createUser(email: string, password: string, metadata: { full_name: string; role: string }): Promise<{ error?: { message: string } }> {
+    // In a real app, this would create the user in the backend
+    console.log('User would be created:', { email, metadata });
+    return {};
   }
 };

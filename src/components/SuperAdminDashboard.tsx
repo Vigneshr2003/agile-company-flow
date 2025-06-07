@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TeamManagement from '@/components/TeamManagement';
-import EmployeeOverview from '@/components/EmployeeOverview';
+import TeamsOverview from '@/components/TeamsOverview';
 import TaskManagement from '@/components/TaskManagement';
 import StockManagement from '@/components/StockManagement';
 import MoMManagement from '@/components/MoMManagement';
@@ -51,7 +51,7 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
         </TabsList>
 
         <TabsContent value="overview">
-          <EmployeeOverview />
+          <TeamsOverview />
         </TabsContent>
 
         <TabsContent value="teams">
