@@ -93,25 +93,25 @@ const TeamTaskView = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
-          <p className="text-gray-600">View and update tasks assigned to your team</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 break-words">My Tasks</h2>
+          <p className="text-sm sm:text-base text-gray-600 break-words">View and update tasks assigned to your team</p>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-xs sm:text-sm text-gray-500 shrink-0">
           {tasks.filter(t => t.status === 'done').length} of {tasks.length} completed
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-orange-600 text-sm font-medium">To Do</p>
-              <p className="text-2xl font-bold text-orange-900">
+              <p className="text-orange-600 text-xs sm:text-sm font-medium">To Do</p>
+              <p className="text-xl sm:text-2xl font-bold text-orange-900">
                 {tasks.filter(t => t.status === 'to_do').length}
               </p>
             </div>
@@ -119,10 +119,10 @@ const TeamTaskView = () => {
         </Card>
 
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-blue-600 text-sm font-medium">In Progress</p>
-              <p className="text-2xl font-bold text-blue-900">
+              <p className="text-blue-600 text-xs sm:text-sm font-medium">In Progress</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-900">
                 {tasks.filter(t => t.status === 'in_progress').length}
               </p>
             </div>
@@ -130,10 +130,10 @@ const TeamTaskView = () => {
         </Card>
 
         <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="text-center">
-              <p className="text-green-600 text-sm font-medium">Completed</p>
-              <p className="text-2xl font-bold text-green-900">
+              <p className="text-green-600 text-xs sm:text-sm font-medium">Completed</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-900">
                 {tasks.filter(t => t.status === 'done').length}
               </p>
             </div>
@@ -142,53 +142,49 @@ const TeamTaskView = () => {
       </div>
 
       {/* Tasks List */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {tasks.map((task) => (
           <Card key={task.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h3>
-                      <p className="text-gray-600 mb-4">{task.description}</p>
-                      
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock className="h-4 w-4" />
-                          <span>Assigned: {new Date(task.assignedDate).toLocaleDateString()}</span>
-                        </div>
-                        {task.comments.length > 0 && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <MessageSquare className="h-4 w-4" />
-                            <span>{task.comments.length} comment{task.comments.length !== 1 ? 's' : ''}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline" className={getStatusColor(task.status)}>
-                          {task.status.replace('_', ' ')}
-                        </Badge>
-                        <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                          <Flag className="h-3 w-3 mr-1" />
-                          {task.priority}
-                        </Badge>
-                      </div>
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 break-words">{task.title}</h3>
+                  <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 break-words">{task.description}</p>
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                      <Calendar className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                      <span className="break-all">Due: {new Date(task.dueDate).toLocaleDateString()}</span>
                     </div>
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                      <span className="break-all">Assigned: {new Date(task.assignedDate).toLocaleDateString()}</span>
+                    </div>
+                    {task.comments.length > 0 && (
+                      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                        <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                        <span>{task.comments.length} comment{task.comments.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <Badge variant="outline" className={`${getStatusColor(task.status)} text-xs whitespace-nowrap`}>
+                      {task.status.replace('_', ' ')}
+                    </Badge>
+                    <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs whitespace-nowrap`}>
+                      <Flag className="h-2 w-2 sm:h-3 sm:w-3 mr-1" />
+                      {task.priority}
+                    </Badge>
                   </div>
                 </div>
                 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-full lg:w-auto lg:min-w-[160px] shrink-0">
                   <Select 
                     value={task.status} 
                     onValueChange={(value) => updateTaskStatus(task.id, value)}
                   >
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full text-xs sm:text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -203,45 +199,46 @@ const TeamTaskView = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
+                        className="w-full text-xs sm:text-sm"
                         onClick={() => setSelectedTask(task)}
                       >
                         View Details
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[600px]">
+                    <DialogContent className="w-[95vw] max-w-[600px] max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
-                        <DialogTitle>{selectedTask?.title}</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-base sm:text-lg break-words pr-6">{selectedTask?.title}</DialogTitle>
+                        <DialogDescription className="text-sm">
                           Task details and comments
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="space-y-6 py-4">
+                      <div className="space-y-4 sm:space-y-6 py-4">
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                          <p className="text-gray-600">{selectedTask?.description}</p>
+                          <h4 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">Description</h4>
+                          <p className="text-gray-600 text-sm sm:text-base break-words">{selectedTask?.description}</p>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <h4 className="font-medium text-gray-900 mb-1">Status</h4>
-                            <Badge variant="outline" className={getStatusColor(selectedTask?.status || '')}>
+                            <h4 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Status</h4>
+                            <Badge variant="outline" className={`${getStatusColor(selectedTask?.status || '')} text-xs`}>
                               {selectedTask?.status?.replace('_', ' ')}
                             </Badge>
                           </div>
                           <div>
-                            <h4 className="font-medium text-gray-900 mb-1">Priority</h4>
-                            <Badge variant="outline" className={getPriorityColor(selectedTask?.priority || '')}>
+                            <h4 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Priority</h4>
+                            <Badge variant="outline" className={`${getPriorityColor(selectedTask?.priority || '')} text-xs`}>
                               {selectedTask?.priority}
                             </Badge>
                           </div>
                         </div>
 
                         <div>
-                          <h4 className="font-medium text-gray-900 mb-3">Comments</h4>
-                          <div className="space-y-3 max-h-40 overflow-y-auto">
+                          <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">Comments</h4>
+                          <div className="space-y-3 max-h-32 sm:max-h-40 overflow-y-auto">
                             {selectedTask?.comments?.map((comment: any) => (
                               <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
-                                <p className="text-gray-800 mb-1">{comment.text}</p>
+                                <p className="text-gray-800 mb-1 text-sm break-words">{comment.text}</p>
                                 <p className="text-xs text-gray-500">
                                   {comment.author} • {new Date(comment.date).toLocaleDateString()}
                                 </p>
@@ -257,14 +254,15 @@ const TeamTaskView = () => {
                               placeholder="Add a comment..."
                               value={newComment}
                               onChange={(e) => setNewComment(e.target.value)}
-                              className="mb-2"
+                              className="mb-2 text-sm"
                             />
                             <Button 
                               size="sm" 
                               onClick={() => addComment(selectedTask?.id, newComment)}
                               disabled={!newComment.trim()}
+                              className="text-xs sm:text-sm"
                             >
-                              <Plus className="h-4 w-4 mr-1" />
+                              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                               Add Comment
                             </Button>
                           </div>
@@ -281,10 +279,10 @@ const TeamTaskView = () => {
 
       {tasks.length === 0 && (
         <Card className="border-2 border-dashed border-gray-300">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <CheckSquare className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks assigned</h3>
-            <p className="text-gray-600 text-center">
+          <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
+            <CheckSquare className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No tasks assigned</h3>
+            <p className="text-gray-600 text-center text-sm sm:text-base break-words">
               You don't have any tasks assigned yet. Check back later or contact your admin.
             </p>
           </CardContent>
