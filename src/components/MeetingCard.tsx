@@ -33,41 +33,41 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow w-full">
       <CardHeader className="pb-3">
-        <div className="flex justify-between items-start gap-2">
-          <CardTitle className="text-lg">{meeting.title}</CardTitle>
-          <Badge className={getStatusColor(meeting.status)}>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+          <CardTitle className="text-base sm:text-lg break-words min-w-0 flex-1">{meeting.title}</CardTitle>
+          <Badge className={`${getStatusColor(meeting.status)} shrink-0 self-start`}>
             {meeting.status}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <span>{meeting.date}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+          <div className="flex items-center gap-2 min-w-0">
+            <Calendar className="h-4 w-4 text-gray-500 shrink-0" />
+            <span className="truncate">{meeting.date}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-500">⏰</span>
-            <span>{meeting.time}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-gray-500 shrink-0">⏰</span>
+            <span className="truncate">{meeting.time}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-gray-500" />
-            <span>{meeting.team}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <Users className="h-4 w-4 text-gray-500 shrink-0" />
+            <span className="truncate">{meeting.team}</span>
           </div>
-          <div className="text-gray-500">
+          <div className="text-gray-500 text-sm">
             {meeting.attendees.length} attendees
           </div>
         </div>
 
         <div>
-          <h4 className="font-medium mb-2">Agenda:</h4>
-          <ul className="text-sm text-gray-600 space-y-1">
+          <h4 className="font-medium mb-2 text-sm sm:text-base">Agenda:</h4>
+          <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
             {meeting.agenda.slice(0, 2).map((item, index) => (
               <li key={index} className="flex items-start gap-2">
-                <span className="text-gray-400">•</span>
-                <span>{item}</span>
+                <span className="text-gray-400 shrink-0">•</span>
+                <span className="break-words">{item}</span>
               </li>
             ))}
             {meeting.agenda.length > 2 && (
@@ -78,10 +78,10 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
           </ul>
         </div>
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <MeetingDetailsDialog meeting={meeting} />
           {isAdmin && meeting.status === 'completed' && !meeting.minutes && (
-            <Button size="sm" className="flex-1">
+            <Button size="sm" className="w-full sm:flex-1">
               <FileText className="h-4 w-4 mr-2" />
               Add Minutes
             </Button>

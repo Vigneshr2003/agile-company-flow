@@ -39,18 +39,18 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
   ];
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className="min-h-screen w-full">
+      <div className="w-full px-2 sm:px-4 lg:px-8 py-3 sm:py-6 lg:py-8 space-y-3 sm:space-y-6 lg:space-y-8">
         {/* Welcome Section */}
         <div className="flex justify-between items-start">
           <div className="w-full min-w-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">
+            <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 break-words">
               Team Admin Dashboard
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+            <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">
               Manage your team and track progress
             </p>
-            <p className="text-xs sm:text-sm text-green-600 mt-1">
+            <p className="text-xs text-green-600 mt-1">
               Frontend Demo - No Backend Integration
             </p>
           </div>
@@ -60,44 +60,46 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
         <TeamStatsCards teamStats={teamStats} />
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4 sm:space-y-6">
-          <div className="w-full overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-white border shadow-sm min-w-max">
-              <TabsTrigger 
-                value="overview" 
-                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
-              >
-                Overview
-              </TabsTrigger>
-              <TabsTrigger 
-                value="employees" 
-                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
-              >
-                Employees
-              </TabsTrigger>
-              <TabsTrigger 
-                value="tasks" 
-                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
-              >
-                Tasks
-              </TabsTrigger>
-              <TabsTrigger 
-                value="stock" 
-                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
-              >
-                Stock
-              </TabsTrigger>
-              <TabsTrigger 
-                value="meetings" 
-                className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs sm:text-sm px-2 sm:px-4 py-2"
-              >
-                Meetings
-              </TabsTrigger>
-            </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-3 sm:space-y-6">
+          <div className="w-full">
+            <div className="overflow-x-auto">
+              <TabsList className="grid grid-cols-5 bg-white border shadow-sm w-full min-w-fit">
+                <TabsTrigger 
+                  value="overview" 
+                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs px-1 sm:px-2 lg:px-4 py-2 whitespace-nowrap"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="employees" 
+                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs px-1 sm:px-2 lg:px-4 py-2 whitespace-nowrap"
+                >
+                  Employees
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="tasks" 
+                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs px-1 sm:px-2 lg:px-4 py-2 whitespace-nowrap"
+                >
+                  Tasks
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="stock" 
+                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs px-1 sm:px-2 lg:px-4 py-2 whitespace-nowrap"
+                >
+                  Stock
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="meetings" 
+                  className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700 text-xs px-1 sm:px-2 lg:px-4 py-2 whitespace-nowrap"
+                >
+                  Meetings
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
 
           <div className="w-full min-w-0">
-            <TabsContent value="overview" className="mt-0 space-y-4 sm:space-y-6">
+            <TabsContent value="overview" className="mt-0 space-y-3 sm:space-y-6">
               <TeamOverviewContent myEmployees={myEmployees} recentTasks={recentTasks} />
             </TabsContent>
 
