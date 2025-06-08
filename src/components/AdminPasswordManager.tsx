@@ -7,9 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { authService } from '@/services/auth';
-import { profilesService } from '@/services/profiles';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
 import { Settings, UserCog, Plus } from 'lucide-react';
 
 interface AdminPasswordManagerProps {

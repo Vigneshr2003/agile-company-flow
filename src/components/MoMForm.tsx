@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Plus, X, Calendar, Users, FileText } from 'lucide-react';
-import { MinutesOfMeeting, ActionItem } from '@/services/minutesOfMeeting';
+import { MinutesOfMeeting, ActionItem } from '@/types/minutesOfMeeting';
 
 interface MoMFormProps {
   isOpen: boolean;

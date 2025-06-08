@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import MoMForm from '@/components/MoMForm';
 import MeetingCard from '@/components/MeetingCard';
-import { MinutesOfMeeting } from '@/services/minutesOfMeeting';
+import { MinutesOfMeeting } from '@/types/minutesOfMeeting';
 import { teams, employees, mockMeetings } from '@/components/mockData';
 
 interface MoMManagementProps {
