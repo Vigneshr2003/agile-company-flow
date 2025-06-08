@@ -13,7 +13,7 @@ export interface AuthResponse {
   error?: string;
 }
 
-// Hardcoded user credentials - removed admin role
+// Hardcoded user credentials
 const users: Record<string, { password: string; user: User }> = {
   'sathya@gmail.com': {
     password: 'Maxmoc@2025',
@@ -132,6 +132,19 @@ export const authService = {
   async createUser(email: string, password: string, metadata: { full_name: string; role: string }): Promise<{ error?: { message: string } }> {
     // In a real app, this would create the user in the backend
     console.log('User would be created:', { email, metadata });
+    
+    // Add the new user to our hardcoded users for demo purposes
+    const newUserId = Date.now().toString();
+    users[email] = {
+      password,
+      user: {
+        id: newUserId,
+        email,
+        role: metadata.role as 'super_admin' | 'team_admin',
+        full_name: metadata.full_name
+      }
+    };
+    
     return {};
   }
 };
