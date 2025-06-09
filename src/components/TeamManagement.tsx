@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,9 +11,10 @@ import { authService } from '@/services/auth';
 
 interface TeamManagementProps {
   selectedTeam: string;
+  onTeamsUpdate?: (teams: any[]) => void;
 }
 
-const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
+const TeamManagement = ({ selectedTeam, onTeamsUpdate }: TeamManagementProps) => {
   const [teams, setTeams] = useState([
     {
       id: 'software',
@@ -117,6 +118,12 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
   const [showAddTeam, setShowAddTeam] = useState(false);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
 
+  useEffect(() => {
+    if (onTeamsUpdate) {
+      onTeamsUpdate(teams);
+    }
+  }, [teams, onTeamsUpdate]);
+
   // Fix filtering logic
   const filteredTeams = selectedTeam === 'all' ? teams : teams.filter(team => 
     team.name.toLowerCase() === selectedTeam.toLowerCase() || 
@@ -145,11 +152,11 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
         id: teamData.id,
         name: teamData.name,
         description: teamData.description,
-        memberCount: teamData.memberCount,
+        memberCount: 0, // Start with 0 members
         lead: teamData.lead
       };
       
-      setTeams([...teams, newTeam]);
+      setTeams(prevTeams => [...prevTeams, newTeam]);
       console.log('New team created with admin credentials:', teamData);
     } catch (error) {
       console.error('Error creating team:', error);
@@ -157,7 +164,17 @@ const TeamManagement = ({ selectedTeam }: TeamManagementProps) => {
   };
 
   const handleAddEmployee = (employeeData: any) => {
-    setEmployees([...employees, employeeData]);
+    setEmployees(prevEmployees => [...prevEmployees, employeeData]);
+    
+    // Update member count for the team
+    setTeams(prevTeams => 
+      prevTeams.map(team => 
+        team.name === employeeData.team 
+          ? { ...team, memberCount: team.memberCount + 1 }
+          : team
+      )
+    );
+    
     console.log('New employee added:', employeeData);
   };
 

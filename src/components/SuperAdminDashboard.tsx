@@ -17,15 +17,23 @@ interface SuperAdminDashboardProps {
 const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedTeam, setSelectedTeam] = useState('all');
-
+  
   // Updated teams to match the data structure used in components
-  const teams = [
+  const [teams, setTeams] = useState([
     { id: 'all', name: 'All Teams' },
     { id: 'Software Team', name: 'Software Team' },
     { id: 'Production Team', name: 'Production Team' },
     { id: 'Hardware & Assembly', name: 'Hardware & Assembly' },
     { id: 'Design Team', name: 'Design Team' },
-  ];
+  ]);
+
+  const handleTeamsUpdate = (updatedTeams: any[]) => {
+    const formattedTeams = [
+      { id: 'all', name: 'All Teams' },
+      ...updatedTeams.map(team => ({ id: team.name, name: team.name }))
+    ];
+    setTeams(formattedTeams);
+  };
 
   return (
     <div className="min-h-screen w-full">
@@ -114,7 +122,7 @@ const SuperAdminDashboard = ({ currentUser, userProfile }: SuperAdminDashboardPr
             </TabsContent>
 
             <TabsContent value="teams" className="mt-0">
-              <TeamManagement selectedTeam={selectedTeam} />
+              <TeamManagement selectedTeam={selectedTeam} onTeamsUpdate={handleTeamsUpdate} />
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-0">

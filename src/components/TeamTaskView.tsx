@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,6 +48,13 @@ const TeamTaskView = () => {
 
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [newComment, setNewComment] = useState('');
+
+  // Order tasks: In Progress -> To Do -> Done
+  const orderedTasks = [
+    ...tasks.filter(task => task.status === 'in_progress'),
+    ...tasks.filter(task => task.status === 'to_do'),
+    ...tasks.filter(task => task.status === 'done')
+  ];
 
   const updateTaskStatus = (id: number, newStatus: string) => {
     setTasks(prev => prev.map(task => 
@@ -101,29 +107,29 @@ const TeamTaskView = () => {
           <p className="text-sm sm:text-base text-gray-600 break-words">View and update tasks assigned to your team</p>
         </div>
         <div className="text-xs sm:text-sm text-gray-500 shrink-0">
-          {tasks.filter(t => t.status === 'done').length} of {tasks.length} completed
+          {orderedTasks.filter(t => t.status === 'done').length} of {orderedTasks.length} completed
         </div>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
-          <CardContent className="p-3 sm:p-4">
-            <div className="text-center">
-              <p className="text-orange-600 text-xs sm:text-sm font-medium">To Do</p>
-              <p className="text-xl sm:text-2xl font-bold text-orange-900">
-                {tasks.filter(t => t.status === 'to_do').length}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
           <CardContent className="p-3 sm:p-4">
             <div className="text-center">
               <p className="text-blue-600 text-xs sm:text-sm font-medium">In Progress</p>
               <p className="text-xl sm:text-2xl font-bold text-blue-900">
-                {tasks.filter(t => t.status === 'in_progress').length}
+                {orderedTasks.filter(t => t.status === 'in_progress').length}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
+          <CardContent className="p-3 sm:p-4">
+            <div className="text-center">
+              <p className="text-orange-600 text-xs sm:text-sm font-medium">To Do</p>
+              <p className="text-xl sm:text-2xl font-bold text-orange-900">
+                {orderedTasks.filter(t => t.status === 'to_do').length}
               </p>
             </div>
           </CardContent>
@@ -134,7 +140,7 @@ const TeamTaskView = () => {
             <div className="text-center">
               <p className="text-green-600 text-xs sm:text-sm font-medium">Completed</p>
               <p className="text-xl sm:text-2xl font-bold text-green-900">
-                {tasks.filter(t => t.status === 'done').length}
+                {orderedTasks.filter(t => t.status === 'done').length}
               </p>
             </div>
           </CardContent>
@@ -143,7 +149,7 @@ const TeamTaskView = () => {
 
       {/* Tasks List */}
       <div className="space-y-3 sm:space-y-4">
-        {tasks.map((task) => (
+        {orderedTasks.map((task) => (
           <Card key={task.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-200">
             <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
