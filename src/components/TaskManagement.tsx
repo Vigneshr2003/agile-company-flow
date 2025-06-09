@@ -1,13 +1,11 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Filter, Search, Eye, Edit } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus } from 'lucide-react';
 import AddTaskForm from '@/components/AddTaskForm';
+import TaskFilters from '@/components/TaskFilters';
+import TaskSection from '@/components/TaskSection';
+import TaskDetailsModal from '@/components/TaskDetailsModal';
 
 interface TaskManagementProps {
   selectedTeam: string;
@@ -113,6 +111,12 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
     setShowEditTask(true);
   };
 
+  const handleClearFilters = () => {
+    setFilterStatus('all');
+    setFilterPriority('all');
+    setSearchTerm('');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-800';
@@ -131,79 +135,6 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
     }
   };
 
-  const TaskSection = ({ title, tasks: sectionTasks, bgColor }: { title: string; tasks: any[]; bgColor: string }) => (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <span className={`${bgColor} px-2 py-1 rounded-full text-xs font-medium`}>
-          {sectionTasks.length}
-        </span>
-      </div>
-      
-      {sectionTasks.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {sectionTasks.map((task) => (
-            <Card key={task.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start gap-2">
-                  <CardTitle className="text-lg line-clamp-2">{task.title}</CardTitle>
-                  <Badge className={getPriorityColor(task.priority)}>
-                    {task.priority}
-                  </Badge>
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <Badge className={getStatusColor(task.status)}>
-                    {task.status}
-                  </Badge>
-                  <span className="text-sm text-gray-500">{task.team}</span>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Assignee:</span>
-                    <span className="font-medium">{task.assignee}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Due Date:</span>
-                    <span className="font-medium">{task.dueDate}</span>
-                  </div>
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => handleEditTask(task)}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => handleViewTask(task)}
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-gray-500">No {title.toLowerCase()} found.</p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -220,120 +151,55 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters & Search
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search tasks..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterPriority} onValueChange={setFilterPriority}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priority</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setFilterStatus('all');
-                setFilterPriority('all');
-                setSearchTerm('');
-              }}
-            >
-              Clear Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <TaskFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        filterPriority={filterPriority}
+        setFilterPriority={setFilterPriority}
+        onClearFilters={handleClearFilters}
+      />
 
       {/* Task Sections */}
       <div className="space-y-8">
         <TaskSection 
           title="Pending Tasks" 
           tasks={pendingTasks} 
-          bgColor="bg-yellow-100 text-yellow-800" 
+          bgColor="bg-yellow-100 text-yellow-800"
+          onViewTask={handleViewTask}
+          onEditTask={handleEditTask}
+          getStatusColor={getStatusColor}
+          getPriorityColor={getPriorityColor}
         />
         <TaskSection 
           title="Approved Tasks" 
           tasks={approvedTasks} 
-          bgColor="bg-green-100 text-green-800" 
+          bgColor="bg-green-100 text-green-800"
+          onViewTask={handleViewTask}
+          onEditTask={handleEditTask}
+          getStatusColor={getStatusColor}
+          getPriorityColor={getPriorityColor}
         />
         <TaskSection 
           title="Rejected Tasks" 
           tasks={rejectedTasks} 
-          bgColor="bg-red-100 text-red-800" 
+          bgColor="bg-red-100 text-red-800"
+          onViewTask={handleViewTask}
+          onEditTask={handleEditTask}
+          getStatusColor={getStatusColor}
+          getPriorityColor={getPriorityColor}
         />
       </div>
 
       {/* Task Details Dialog */}
-      <Dialog open={showTaskDetails} onOpenChange={setShowTaskDetails}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{selectedTask?.title}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-gray-600">{selectedTask?.description}</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium">Status</h4>
-                <Badge className={getStatusColor(selectedTask?.status || '')}>
-                  {selectedTask?.status}
-                </Badge>
-              </div>
-              <div>
-                <h4 className="font-medium">Priority</h4>
-                <Badge className={getPriorityColor(selectedTask?.priority || '')}>
-                  {selectedTask?.priority}
-                </Badge>
-              </div>
-              <div>
-                <h4 className="font-medium">Assignee</h4>
-                <p>{selectedTask?.assignee}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Team</h4>
-                <p>{selectedTask?.team}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Due Date</h4>
-                <p>{selectedTask?.dueDate}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Created</h4>
-                <p>{selectedTask?.createdAt}</p>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TaskDetailsModal
+        task={selectedTask}
+        isOpen={showTaskDetails}
+        onClose={() => setShowTaskDetails(false)}
+        getStatusColor={getStatusColor}
+        getPriorityColor={getPriorityColor}
+      />
 
       {/* Add Task Form */}
       <AddTaskForm
