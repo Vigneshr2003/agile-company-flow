@@ -17,7 +17,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       id: 1, 
       title: 'Fix login authentication bug', 
       description: 'Users unable to login with Google OAuth',
-      status: 'pending', 
+      status: 'InProgress', 
       priority: 'high', 
       assignee: 'Alice Johnson',
       team: 'Software Team',
@@ -28,7 +28,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       id: 2, 
       title: 'Update product catalog UI', 
       description: 'Redesign the product listing page for better UX',
-      status: 'approved', 
+      status: 'ToDo', 
       priority: 'medium', 
       assignee: 'Bob Smith',
       team: 'Design Team',
@@ -39,7 +39,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       id: 3, 
       title: 'Database performance optimization', 
       description: 'Optimize slow queries and add indexes',
-      status: 'rejected', 
+      status: 'Done', 
       priority: 'low', 
       assignee: 'Carol Davis',
       team: 'Software Team',
@@ -50,7 +50,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       id: 4, 
       title: 'Assembly line efficiency improvement', 
       description: 'Implement new workflow for better productivity',
-      status: 'approved', 
+      status: 'ToDo', 
       priority: 'high', 
       assignee: 'David Wilson',
       team: 'Production Team',
@@ -61,7 +61,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       id: 5, 
       title: 'Hardware testing protocols', 
       description: 'Develop comprehensive testing procedures',
-      status: 'pending', 
+      status: 'Done', 
       priority: 'medium', 
       assignee: 'Eva Brown',
       team: 'Hardware & Assembly',
@@ -92,9 +92,9 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
   });
 
   // Organize tasks by status
-  const pendingTasks = filteredTasks.filter(task => task.status === 'pending');
-  const approvedTasks = filteredTasks.filter(task => task.status === 'approved');
-  const rejectedTasks = filteredTasks.filter(task => task.status === 'rejected');
+  const inProgress = filteredTasks.filter(task => task.status === 'InProgress');
+  const toDo = filteredTasks.filter(task => task.status === 'ToDo');
+  const done = filteredTasks.filter(task => task.status === 'Done');
 
   const handleAddTask = (taskData: any) => {
     setTasks([...tasks, taskData]);
@@ -119,9 +119,9 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
+      case 'InProgress': return 'bg-green-100 text-green-800';
+      case 'ToDo': return 'bg-yellow-100 text-yellow-800';
+      case 'Done': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -164,8 +164,8 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
       {/* Task Sections */}
       <div className="space-y-8">
         <TaskSection 
-          title="Pending Tasks" 
-          tasks={pendingTasks} 
+          title="In Progress" 
+          tasks={inProgress} 
           bgColor="bg-yellow-100 text-yellow-800"
           onViewTask={handleViewTask}
           onEditTask={handleEditTask}
@@ -173,8 +173,8 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
           getPriorityColor={getPriorityColor}
         />
         <TaskSection 
-          title="Approved Tasks" 
-          tasks={approvedTasks} 
+          title="To-Do" 
+          tasks={toDo} 
           bgColor="bg-green-100 text-green-800"
           onViewTask={handleViewTask}
           onEditTask={handleEditTask}
@@ -182,8 +182,8 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
           getPriorityColor={getPriorityColor}
         />
         <TaskSection 
-          title="Rejected Tasks" 
-          tasks={rejectedTasks} 
+          title="Done" 
+          tasks={done} 
           bgColor="bg-red-100 text-red-800"
           onViewTask={handleViewTask}
           onEditTask={handleEditTask}
