@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,39 +34,52 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
   };
 
   const downloadPDF = async () => {
-    const doc = new jsPDF();
+    try {
+      const doc = new jsPDF();
 
-    // Logo placement (assumes png, 40x20mm)
-    const logoUrl = '/components/asset/logo.png';
-    const logo = await fetch(logoUrl).then(r => r.blob()).then(blob => new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    }));
+      // Try to add logo, but continue if it fails
+      try {
+        const logoUrl = '/components/asset/logo.png';
+        const response = await fetch(logoUrl);
+        if (response.ok) {
+          const blob = await response.blob();
+          const logo = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          doc.addImage(logo, 'PNG', 10, 10, 32, 16);
+        }
+      } catch (logoError) {
+        console.warn('Could not load logo, continuing without it:', logoError);
+      }
 
-    if (logo) {
-      doc.addImage(logo as string, 'PNG', 10, 10, 32, 16);
+      // Add content
+      doc.setFontSize(18);
+      doc.text(meeting.title, 10, 35);
+      doc.setFontSize(12);
+
+      let y = 45;
+      doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y+=8;
+      doc.text(`Team: ${meeting.team}`, 10, y); y+=8;
+      doc.text('Attendees:', 10, y); y+=6;
+      doc.text(meeting.attendees.join(', '), 18, y); y+=8;
+      doc.text('Agenda:', 10, y); y+=6;
+      meeting.agenda.forEach(item => {
+        doc.text(`- ${item}`, 18, y); y+=6;
+      });
+      if (meeting.minutes) {
+        y += 4;
+        doc.text('Minutes:', 10, y); y+=6;
+        doc.text(meeting.minutes, 18, y); y+=8;
+      }
+
+      doc.save(`${meeting.title}_details.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
     }
-    doc.setFontSize(18);
-    doc.text(meeting.title, 10, 35);
-    doc.setFontSize(12);
-
-    let y = 45;
-    doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y+=8;
-    doc.text(`Team: ${meeting.team}`, 10, y); y+=8;
-    doc.text('Attendees:', 10, y); y+=6;
-    doc.text(meeting.attendees.join(', '), 18, y); y+=8;
-    doc.text('Agenda:', 10, y); y+=6;
-    meeting.agenda.forEach(item => {
-      doc.text(`- ${item}`, 18, y); y+=6;
-    });
-    if (meeting.minutes) {
-      y += 4;
-      doc.text('Minutes:', 10, y); y+=6;
-      doc.text(meeting.minutes, 18, y); y+=8;
-    }
-
-    doc.save(`${meeting.title}_details.pdf`);
   };
 
   return (

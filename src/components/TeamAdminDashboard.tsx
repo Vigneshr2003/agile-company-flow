@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TeamEmployeeManagement from '@/components/TeamEmployeeManagement';
@@ -116,7 +115,7 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
             </TabsContent>
 
             <TabsContent value="meetings" className="mt-0">
-              <MoMManagement selectedTeam="all" isAdmin={false} />
+              <MoMManagement selectedTeam="all" isAdmin={true} />
             </TabsContent>
           </div>
         </Tabs>
