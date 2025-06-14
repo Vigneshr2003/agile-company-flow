@@ -14,7 +14,7 @@ interface MoMManagementProps {
 }
 
 const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
-  const [meetings] = useState(mockMeetings);
+  const [meetings, setMeetings] = useState(mockMeetings);
   const [showMoMForm, setShowMoMForm] = useState(false);
 
   // Fix filtering logic - improve team matching
@@ -35,6 +35,25 @@ const MoMManagement = ({ selectedTeam, isAdmin }: MoMManagementProps) => {
 
   const handleMoMSubmit = (mom: MinutesOfMeeting) => {
     console.log('New MoM created:', mom);
+    
+    // Convert MoM to meeting format and add to meetings list
+    const newMeeting = {
+      id: Date.now(),
+      title: mom.title,
+      date: new Date(mom.date).toLocaleDateString(),
+      time: new Date(mom.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      team: teams.find(team => team.id === mom.team_id)?.name || 'Unknown Team',
+      attendees: mom.participants.map(participantId => {
+        const employee = employees.find(emp => emp.id === participantId);
+        return employee ? employee.full_name || employee.email : 'Unknown';
+      }),
+      status: 'scheduled',
+      agenda: mom.agenda ? mom.agenda.split('\n').filter(item => item.trim()) : [],
+      minutes: mom.discussion_summary || ''
+    };
+    
+    // Add the new meeting to the list
+    setMeetings(prev => [newMeeting, ...prev]);
     setShowMoMForm(false);
   };
 
