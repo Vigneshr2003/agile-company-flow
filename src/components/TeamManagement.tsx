@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import AddTeamForm from '@/components/AddTeamForm';
 import AddEmployeeForm from '@/components/AddEmployeeForm';
 import { authService } from '@/services/auth';
+import EditTeamLeadDialog from "@/components/EditTeamLeadDialog";
 
 interface TeamManagementProps {
   selectedTeam: string;
@@ -117,6 +118,8 @@ const TeamManagement = ({ selectedTeam, onTeamsUpdate }: TeamManagementProps) =>
 
   const [showAddTeam, setShowAddTeam] = useState(false);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
+  const [editTeamLeadOpen, setEditTeamLeadOpen] = useState(false);
+  const [teamToEdit, setTeamToEdit] = useState<any>(null);
 
   useEffect(() => {
     if (onTeamsUpdate) {
@@ -178,6 +181,18 @@ const TeamManagement = ({ selectedTeam, onTeamsUpdate }: TeamManagementProps) =>
     console.log('New employee added:', employeeData);
   };
 
+  const handleEditTeamLead = (team: any) => {
+    setTeamToEdit(team);
+    setEditTeamLeadOpen(true);
+  };
+  const handleSaveTeamLead = (newLead: string) => {
+    setTeams(prev => prev.map(team =>
+      team.id === teamToEdit.id ? { ...team, lead: newLead } : team
+    ));
+    setEditTeamLeadOpen(false);
+    setTeamToEdit(null);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800';
@@ -237,10 +252,16 @@ const TeamManagement = ({ selectedTeam, onTeamsUpdate }: TeamManagementProps) =>
                       <span className="font-medium text-right break-words flex-1 ml-2">{team.lead}</span>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
-                    <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    Manage Team
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+                      <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      Manage Team
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full text-xs sm:text-sm"
+                      onClick={() => handleEditTeamLead(team)}>
+                      Edit Team Lead
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -328,6 +349,17 @@ const TeamManagement = ({ selectedTeam, onTeamsUpdate }: TeamManagementProps) =>
           onSubmit={handleAddEmployee}
           teams={teams}
         />
+
+        {/* Edit Team Lead Dialog */}
+        {teamToEdit && (
+          <EditTeamLeadDialog
+            isOpen={editTeamLeadOpen}
+            onClose={() => setEditTeamLeadOpen(false)}
+            teamName={teamToEdit.name}
+            currentLead={teamToEdit.lead}
+            onSave={handleSaveTeamLead}
+          />
+        )}
       </div>
     </div>
   );

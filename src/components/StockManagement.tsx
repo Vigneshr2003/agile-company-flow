@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ const StockManagement = ({ selectedTeam = 'all' }: StockManagementProps) => {
   const [activeTab, setActiveTab] = useState('requests');
   
   // Stock requests from teams
-  const [stockRequests, setStockRequests] = useState([
+  const [stocks, setStocks] = useState([
     {
       id: 1,
       itemName: 'Laptop Chargers',
@@ -86,7 +85,7 @@ const StockManagement = ({ selectedTeam = 'all' }: StockManagementProps) => {
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
   const updateRequestStatus = (id: number, newStatus: string) => {
-    setStockRequests(prev => prev.map(request => 
+    setStocks(prev => prev.map(request => 
       request.id === id ? { ...request, status: newStatus } : request
     ));
   };
@@ -134,7 +133,7 @@ const StockManagement = ({ selectedTeam = 'all' }: StockManagementProps) => {
   };
 
   // Filter data based on selected team
-  const filteredRequests = stockRequests.filter(request => {
+  const filteredRequests = stocks.filter(request => {
     const matchesTeam = selectedTeam === 'all' || request.requestedBy.toLowerCase().includes(selectedTeam.toLowerCase());
     const matchesStatus = filterStatus === 'all' || request.status === filterStatus;
     return matchesTeam && matchesStatus;
@@ -146,6 +145,12 @@ const StockManagement = ({ selectedTeam = 'all' }: StockManagementProps) => {
 
   const criticalItems = stockInventory.filter(item => item.status === 'critical').length;
   const lowStockItems = stockInventory.filter(item => item.status === 'low').length;
+
+  // Assume "tasks" is "stocks" for stock requests; if not, change as appropriate.
+  // Explicitly group by status (pending > approved > rejected)
+  const pendingStocks = stocks.filter(s => s.status === 'pending');
+  const approvedStocks = stocks.filter(s => s.status === 'approved');
+  const rejectedStocks = stocks.filter(s => s.status === 'rejected');
 
   return (
     <div className="space-y-6">

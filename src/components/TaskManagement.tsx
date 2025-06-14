@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -163,6 +162,7 @@ const TaskManagement = ({ selectedTeam }: TaskManagementProps) => {
 
       {/* Task Sections */}
       <div className="space-y-8">
+        {/* Order is In Progress, To-Do, Done */}
         <TaskSection 
           title="In Progress" 
           tasks={inProgress} 

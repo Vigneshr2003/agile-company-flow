@@ -1,9 +1,9 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, FileText } from 'lucide-react';
+import { Calendar, Users, FileText, Download } from 'lucide-react';
 import MeetingDetailsDialog from '@/components/MeetingDetailsDialog';
+import { jsPDF } from 'jspdf';
 
 interface Meeting {
   id: number;
@@ -30,6 +30,42 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const downloadPDF = async () => {
+    const doc = new jsPDF();
+
+    // Logo placement (assumes png, 40x20mm)
+    const logoUrl = '/components/asset/logo.png';
+    const logo = await fetch(logoUrl).then(r => r.blob()).then(blob => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    }));
+
+    if (logo) {
+      doc.addImage(logo as string, 'PNG', 10, 10, 32, 16);
+    }
+    doc.setFontSize(18);
+    doc.text(meeting.title, 10, 35);
+    doc.setFontSize(12);
+
+    let y = 45;
+    doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y+=8;
+    doc.text(`Team: ${meeting.team}`, 10, y); y+=8;
+    doc.text('Attendees:', 10, y); y+=6;
+    doc.text(meeting.attendees.join(', '), 18, y); y+=8;
+    doc.text('Agenda:', 10, y); y+=6;
+    meeting.agenda.forEach(item => {
+      doc.text(`- ${item}`, 18, y); y+=6;
+    });
+    if (meeting.minutes) {
+      y += 4;
+      doc.text('Minutes:', 10, y); y+=6;
+      doc.text(meeting.minutes, 18, y); y+=8;
+    }
+
+    doc.save(`${meeting.title}_details.pdf`);
   };
 
   return (
@@ -80,6 +116,10 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
 
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <MeetingDetailsDialog meeting={meeting} />
+          <Button size="sm" className="w-full sm:flex-1" onClick={downloadPDF} variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Download PDF
+          </Button>
           {isAdmin && meeting.status === 'completed' && !meeting.minutes && (
             <Button size="sm" className="w-full sm:flex-1">
               <FileText className="h-4 w-4 mr-2" />
