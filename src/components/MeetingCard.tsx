@@ -37,45 +37,51 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
     try {
       const doc = new jsPDF();
 
-      // Try to add logo, but continue if it fails
+      // Add logo if possible
       try {
         const logoUrl = '/components/asset/logo.png';
         const response = await fetch(logoUrl);
         if (response.ok) {
           const blob = await response.blob();
-          const logo = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-          doc.addImage(logo, 'PNG', 10, 10, 32, 16);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const logo = reader.result as string;
+            doc.addImage(logo, 'PNG', 10, 10, 32, 16);
+            finishPDF();
+          };
+          reader.onerror = (err) => {
+            console.warn('Could not read logo blob, continuing without it:', err);
+            finishPDF();
+          };
+          reader.readAsDataURL(blob);
+        } else {
+          finishPDF();
         }
       } catch (logoError) {
-        console.warn('Could not load logo, continuing without it:', logoError);
+        finishPDF();
       }
 
-      // Add content
-      doc.setFontSize(18);
-      doc.text(meeting.title, 10, 35);
-      doc.setFontSize(12);
+      function finishPDF() {
+        doc.setFontSize(18);
+        doc.text(meeting.title, 10, 35);
+        doc.setFontSize(12);
 
-      let y = 45;
-      doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y+=8;
-      doc.text(`Team: ${meeting.team}`, 10, y); y+=8;
-      doc.text('Attendees:', 10, y); y+=6;
-      doc.text(meeting.attendees.join(', '), 18, y); y+=8;
-      doc.text('Agenda:', 10, y); y+=6;
-      meeting.agenda.forEach(item => {
-        doc.text(`- ${item}`, 18, y); y+=6;
-      });
-      if (meeting.minutes) {
-        y += 4;
-        doc.text('Minutes:', 10, y); y+=6;
-        doc.text(meeting.minutes, 18, y); y+=8;
+        let y = 45;
+        doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y+=8;
+        doc.text(`Team: ${meeting.team}`, 10, y); y+=8;
+        doc.text('Attendees:', 10, y); y+=6;
+        doc.text(meeting.attendees.join(', '), 18, y); y+=8;
+        doc.text('Agenda:', 10, y); y+=6;
+        meeting.agenda.forEach(item => {
+          doc.text(`- ${item}`, 18, y); y+=6;
+        });
+        if (meeting.minutes) {
+          y += 4;
+          doc.text('Minutes:', 10, y); y+=6;
+          doc.text(meeting.minutes, 18, y); y+=8;
+        }
+        doc.save(`${meeting.title.replace(/\s+/g, "_")}_details.pdf`);
       }
-
-      doc.save(`${meeting.title}_details.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -110,7 +116,6 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
             {meeting.attendees.length} attendees
           </div>
         </div>
-
         <div>
           <h4 className="font-medium mb-2 text-sm sm:text-base">Agenda:</h4>
           <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
@@ -127,9 +132,9 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
             )}
           </ul>
         </div>
-
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <MeetingDetailsDialog meeting={meeting} />
+          {/* Ensuring Download PDF button always shown and works */}
           <Button size="sm" className="w-full sm:flex-1" onClick={downloadPDF} variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Download PDF

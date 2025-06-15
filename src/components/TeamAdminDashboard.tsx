@@ -6,6 +6,7 @@ import TeamStockView from '@/components/TeamStockView';
 import TeamStatsCards from '@/components/TeamStatsCards';
 import TeamOverviewContent from '@/components/TeamOverviewContent';
 import MoMManagement from '@/components/MoMManagement';
+import { Download } from 'lucide-react';
 
 interface TeamAdminDashboardProps {
   currentUser: any;
@@ -115,6 +116,7 @@ const TeamAdminDashboard = ({ currentUser, userProfile }: TeamAdminDashboardProp
             </TabsContent>
 
             <TabsContent value="meetings" className="mt-0">
+              {/* Make sure isAdmin=true so PDF button is always present */}
               <MoMManagement selectedTeam="all" isAdmin={true} />
             </TabsContent>
           </div>
