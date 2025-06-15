@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,57 +33,65 @@ const MeetingCard = ({ meeting, isAdmin }: MeetingCardProps) => {
   };
 
   const downloadPDF = async () => {
-    try {
-      const doc = new jsPDF();
+    const doc = new jsPDF();
 
-      // Add logo if possible
-      try {
-        const logoUrl = '/components/asset/logo.png';
-        const response = await fetch(logoUrl);
-        if (response.ok) {
-          const blob = await response.blob();
-          const reader = new FileReader();
-          reader.onloadend = () => {
+    // Add logo, or just export PDF if not available
+    let yOffset = 10 + 16 + 8; // Y position after logo (default)
+    let logoAdded = false;
+    try {
+      const logoUrl = '/components/asset/logo.png';
+      const response = await fetch(logoUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = function () {
+          try {
             const logo = reader.result as string;
             doc.addImage(logo, 'PNG', 10, 10, 32, 16);
-            finishPDF();
-          };
-          reader.onerror = (err) => {
-            console.warn('Could not read logo blob, continuing without it:', err);
-            finishPDF();
-          };
-          reader.readAsDataURL(blob);
-        } else {
-          finishPDF();
-        }
-      } catch (logoError) {
-        finishPDF();
+            logoAdded = true;
+            renderPDF(doc, yOffset);
+          } catch (addImgErr) {
+            console.warn('Error adding logo image, proceeding without logo:', addImgErr);
+            renderPDF(doc, 20);
+          }
+        };
+        reader.onerror = function (e) {
+          console.warn('Error reading logo blob, proceeding without logo:', e);
+          renderPDF(doc, 20);
+        };
+        reader.readAsDataURL(blob);
+        return; // Wait for async FileReader!
+      } else {
+        console.warn("Logo not found (404), generating PDF without logo.");
+        renderPDF(doc, 20);
       }
+    } catch (err) {
+      console.warn('Failed fetching/processing logo, skipping logo:', err);
+      renderPDF(doc, 20);
+    }
 
-      function finishPDF() {
-        doc.setFontSize(18);
-        doc.text(meeting.title, 10, 35);
-        doc.setFontSize(12);
-
-        let y = 45;
-        doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y+=8;
-        doc.text(`Team: ${meeting.team}`, 10, y); y+=8;
-        doc.text('Attendees:', 10, y); y+=6;
-        doc.text(meeting.attendees.join(', '), 18, y); y+=8;
-        doc.text('Agenda:', 10, y); y+=6;
-        meeting.agenda.forEach(item => {
-          doc.text(`- ${item}`, 18, y); y+=6;
-        });
-        if (meeting.minutes) {
-          y += 4;
-          doc.text('Minutes:', 10, y); y+=6;
-          doc.text(meeting.minutes, 18, y); y+=8;
-        }
-        doc.save(`${meeting.title.replace(/\s+/g, "_")}_details.pdf`);
+    // This will be called on success or catch/finally above.
+    function renderPDF(doc: jsPDF, startY: number = 20) {
+      let y = logoAdded ? 35 : startY;
+      doc.setFontSize(18);
+      doc.text(meeting.title, 10, y);
+      y += 10;
+      doc.setFontSize(12);
+      doc.text(`Date: ${meeting.date}   Time: ${meeting.time}`, 10, y); y += 8;
+      doc.text(`Team: ${meeting.team}`, 10, y); y += 8;
+      doc.text('Attendees:', 10, y); y += 6;
+      doc.text(meeting.attendees.join(', '), 18, y); y += 8;
+      doc.text('Agenda:', 10, y); y += 6;
+      meeting.agenda.forEach(item => {
+        doc.text(`- ${item}`, 18, y); y += 6;
+      });
+      if (meeting.minutes) {
+        y += 4;
+        doc.text('Minutes:', 10, y); y += 6;
+        doc.text(meeting.minutes, 18, y); y += 8;
       }
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      doc.save(`${meeting.title.replace(/\s+/g, "_")}_details.pdf`);
+      console.log("PDF download triggered (logoAdded:", logoAdded, ")");
     }
   };
 
